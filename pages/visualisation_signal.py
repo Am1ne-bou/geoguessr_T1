@@ -15,7 +15,7 @@ st.write(
     """
 )
 A = st.number_input("Amplitude (A)", min_value=0.0, max_value=100000.0, value=1.0, step=10.0)
-f = st.number_input("Fréquence (f)", min_value=0.0, max_value=50.0, value=1.0, step=1.0)
+f = st.number_input("Fréquence (f)", min_value=0.0, max_value=10000000.0, value=1.0, step=1.0)
 phi = st.number_input("Phase (φ en radians)", min_value=0.0, max_value=float(2*np.pi), value=0.0, step=0.1, format="%.2f")
 
 t = np.linspace(0, 2, 1000)

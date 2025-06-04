@@ -56,22 +56,45 @@ st.write(
 )
 N = len(t)
 frequences = np.fft.fftfreq(N, d=(t[1]-t[0]))[:N//2]  
-spectre = np.abs(np.fft.fft(y))[:N//2] * 2/N 
+amplitude = np.abs(np.fft.fft(y))[:N//2] * 2/N 
 
-fig_spectre = go.Figure()
-fig_spectre.add_trace(go.Scatter(
-    x=frequences,
-    y=spectre,
-    mode='lines',
-    line=dict(color='red')
-))
-fig_spectre.update_layout(
-    title="Spectre du signal",
-    xaxis_title='Fréquence (Hz)',
-    yaxis_title='Amplitude',
-    template='plotly_white',
-    showlegend=False,
-    xaxis=dict(range=[0, 20]),
-)
+# Détection des pics dans le spectre
+peaks = (np.abs(amplitude) > 0.1)  # Seuil arbitraire
 
-st.plotly_chart(fig_spectre, use_container_width=True)
+fig_fft = go.Figure()
+
+fig_fft.add_trace(go.Scatter(x=frequences, y=np.zeros_like(frequences),  
+                         line=dict(color='white')))
+
+# Marquage des pics
+fig_fft.add_trace(go.Scatter(x=frequences[peaks], y=amplitude[peaks],
+                        mode='markers',
+                        marker=dict(color='red', size=4)))
+
+for freq, amp in zip(frequences[peaks], amplitude[peaks]):
+    fig_fft.add_shape(
+        type="line",
+        x0=freq, y0=0,  # Starts at x-axis
+        x1=freq, y1=amp,  # Ends at peak amplitude
+        line=dict(color="red", width=1.5),
+        opacity=0.8
+    )
+    # Ajouter des annotations pour les pics
+    fig_fft.add_annotation(
+        x=freq,
+        y=amp,
+        text=f"{freq:.1f} Hz",
+        showarrow=False,
+        yshift=10,
+        font=dict(size=10)
+    )
+
+# Mise en forme
+fig_fft.update_layout(title='Spectre ',
+                 xaxis_title='Fréquence (Hz)',
+                 yaxis_title='Amplitude',
+                 xaxis_range=[0, f*1.05],
+                 showlegend=False)
+
+
+st.plotly_chart(fig_fft, use_container_width=True)

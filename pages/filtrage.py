@@ -41,21 +41,43 @@ freqs_fft = np.fft.fftfreq(N, d=(t[1]-t[0]))
 spectre = np.abs(np.fft.fft(signal)) * 2 / N
 mask = freqs_fft >= 0
 
-fig_spectre = go.Figure()
-fig_spectre.add_trace(go.Scatter(
-    x=freqs_fft[mask],
-    y=spectre[mask],
-    mode='lines',
-    line=dict(color='red')
-))
-fig_spectre.update_layout(
-    title="Spectre du signal (FFT)",
-    xaxis_title="Fréquence (Hz)",
-    yaxis_title="Amplitude",
-    template="plotly_white",
-    xaxis=dict(range=[0, max(frequences)+10])
-)
-st.plotly_chart(fig_spectre, use_container_width=True)
+peaks_fft = (np.abs(spectre) > 0.1)  # Seuil arbitraire
+
+fig_fft = go.Figure()
+fig_fft.add_trace(go.Scatter(x=freqs_fft, y=np.zeros_like(freqs_fft),  
+                         line=dict(color='white')))
+
+# Marquage des pics
+fig_fft.add_trace(go.Scatter(x=freqs_fft[peaks_fft], y=spectre[peaks_fft],
+                        mode='markers',
+                        marker=dict(color='red', size=4)))
+
+for freq, amp in zip(freqs_fft[peaks_fft], spectre[peaks_fft]):
+    fig_fft.add_shape(
+        type="line",
+        x0=freq, y0=0,  # Starts at x-axis
+        x1=freq, y1=amp,  # Ends at peak amplitude
+        line=dict(color="red", width=1.5),
+        opacity=0.8
+    )
+    # Ajouter des annotations pour les pics
+    fig_fft.add_annotation(
+        x=freq,
+        y=amp,
+        text=f"{freq:.1f} Hz",
+        showarrow=False,
+        yshift=10,
+        font=dict(size=10)
+    )
+
+# Mise en forme
+fig_fft.update_layout(title='Spectre ',
+                 xaxis_title='Fréquence (Hz)',
+                 yaxis_title='Amplitude',
+                 xaxis_range=[0, max(frequences)*1.05],
+                 showlegend=False)
+
+st.plotly_chart(fig_fft, use_container_width=True)
 
 st.header("3. Filtrage fréquentiel (filtre parfait)")
 
@@ -82,23 +104,68 @@ signal_filtre = np.fft.ifft(fft_filtre).real
 
 # Spectre du signal filtré
 spectre_filtre = np.abs(fft_filtre) * 2 / N
+# Détection des pics dans le spectre
+peaks = (np.abs(spectre_filtre) > 0.1)  
 
 st.subheader("Spectre du signal filtré")
-fig_spectre_filtre = go.Figure()
-fig_spectre_filtre.add_trace(go.Scatter(
-    x=freqs_fft[mask],
-    y=spectre_filtre[mask],
-    mode='lines',
-    line=dict(color='blue')
-))
-fig_spectre_filtre.update_layout(
-    title="Spectre du signal filtré",
-    xaxis_title="Fréquence (Hz)",
-    yaxis_title="Amplitude",
-    template="plotly_white",
-    xaxis=dict(range=[0, max(frequences)+10])
-)
-st.plotly_chart(fig_spectre_filtre, use_container_width=True)
+fig_fft_filtre = go.Figure()
+# Mettre en évidence la fréquence de coupure
+if filtre_type == "Passe-bas"or filtre_type == "Passe-haut":
+    fig_fft_filtre.add_vline(
+        x=fc,
+        line=dict(color='green', dash='dash'),
+        annotation_text="fc",
+        annotation_position="top right"
+    )
+elif filtre_type == "Passe-bande":
+    fig_fft_filtre.add_vline(
+        x=f_low,
+        line=dict(color='green', dash='dash'),
+        annotation_text="f_low",
+        annotation_position="top right"
+    )
+    fig_fft_filtre.add_vline(
+        x=f_high,
+        line=dict(color='green', dash='dash'),
+        annotation_text="f_high",
+        annotation_position="top right"
+    )
+
+
+fig_fft_filtre.add_trace(go.Scatter(x=freqs_fft, y=np.zeros_like(freqs_fft),  
+                         line=dict(color='white')))
+
+# Marquage des pics
+fig_fft_filtre.add_trace(go.Scatter(x=freqs_fft[peaks], y=signal_filtre[peaks],
+                        mode='markers',
+                        marker=dict(color='red', size=4)))
+
+for freq, amp in zip(freqs_fft[peaks], signal_filtre[peaks]):
+    fig_fft_filtre.add_shape(
+        type="line",
+        x0=freq, y0=0,  # Starts at x-axis
+        x1=freq, y1=amp,  # Ends at peak amplitude
+        line=dict(color="red", width=1.5),
+        opacity=0.8
+    )
+    # Ajouter des annotations pour les pics
+    fig_fft_filtre.add_annotation(
+        x=freq,
+        y=amp,
+        text=f"{freq:.1f} Hz",
+        showarrow=False,
+        yshift=10,
+        font=dict(size=10)
+    )
+
+# Mise en forme
+fig_fft_filtre.update_layout(title='Spectre ',
+                 xaxis_title='Fréquence (Hz)',
+                 yaxis_title='Amplitude',
+                 xaxis_range=[0, max(frequences)*1.05],
+                 showlegend=False)
+
+st.plotly_chart(fig_fft_filtre, use_container_width=True)
 
 # Affichage du signal filtré
 st.subheader("Signal dans le temps après filtrage")

@@ -148,7 +148,6 @@ for freq, amp in zip(freqs_fft[peaks], spectre_filtre[peaks]):
         line=dict(color="red", width=1.5),
         opacity=0.8
     )
-    # Ajouter des annotations pour les pics
     fig_fft_filtre.add_annotation(
         x=freq,
         y=amp,

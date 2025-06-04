@@ -136,11 +136,11 @@ fig_fft_filtre.add_trace(go.Scatter(x=freqs_fft, y=np.zeros_like(freqs_fft),
                          line=dict(color='white')))
 
 # Marquage des pics
-fig_fft_filtre.add_trace(go.Scatter(x=freqs_fft[peaks], y=signal_filtre[peaks],
+fig_fft_filtre.add_trace(go.Scatter(x=freqs_fft[peaks], y=spectre_filtre[peaks],
                         mode='markers',
                         marker=dict(color='red', size=4)))
 
-for freq, amp in zip(freqs_fft[peaks], signal_filtre[peaks]):
+for freq, amp in zip(freqs_fft[peaks], spectre_filtre[peaks]):
     fig_fft_filtre.add_shape(
         type="line",
         x0=freq, y0=0,  # Starts at x-axis

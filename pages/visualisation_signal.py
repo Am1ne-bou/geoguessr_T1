@@ -1,6 +1,8 @@
 import numpy as np
 import streamlit as st
 import plotly.graph_objects as go
+import scipy as sp
+import matplotlib.pyplot as plt
 
 st.title("Visualisation interactive d'un signal sinusoïdal")
 st.header("1. Visualisation du signal $A \\cos(2\\pi f t + \\phi)$")
@@ -98,3 +100,89 @@ fig_fft.update_layout(title='Spectre ',
 
 
 st.plotly_chart(fig_fft, use_container_width=True)
+
+
+st.title("Introduction au Spectrogramme")
+st.markdown("""
+## Qu'est-ce qu'un spectrogramme ?
+
+Un **spectrogramme** est une représentation visuelle qui montre :
+- **Comment les fréquences** d'un signal **évoluent dans le temps**
+- **L'intensité** (puissance) de chaque fréquence à chaque instant
+
+C'est comme une "carte thermique" des fréquences !
+""")
+
+# Création d'un signal cosinus avec fréquence variable
+st.header("Exemple avec un cosinus")
+st.markdown("Un signal simple : $x(t) = A\cos(2\pi f) t)$ où $f(t)$ change au cours du temps")
+
+# Paramètres
+f_max = 100.0  # Fréquence maximale
+A = st.slider("Amplitude (A)", 0.1, 2.0, 1.0)
+f = st.slider("Fréquence  (Hz)", 1.0, f_max, 10.0)
+
+
+fs = 10e3  # Fréquence d'échantillonnage
+N = 1e5  # Nombre d'échantillons
+
+time = np.arange(N) / float(fs)
+
+carrier = A * np.cos(2*np.pi*f*time)
+
+
+x = carrier
+
+f_spec, t_spec, Sxx = sp.signal.spectrogram(x, fs)
+
+
+
+# Visualisation
+fig = go.Figure()
+
+# Signal temporel
+fig.add_trace(go.Scatter(
+    x=time, y=x,
+    mode='lines',
+    name='Signal',
+    line=dict(color='blue', width=1)
+))
+
+fig.update_layout(
+    title="Signal cosinus à fréquence variable",
+    xaxis_title="Temps (s)",
+    xaxis=dict(range=[0, time[-1]//100]),
+    yaxis_title="Amplitude"
+)
+st.plotly_chart(fig, use_container_width=True)
+
+# Spectrogramme
+plt.figure(figsize=(10, 6))
+plt.pcolormesh(t_spec, f_spec, Sxx, shading='gouraud')
+plt.ylabel('Frequency [Hz]')
+plt.xlabel('Time [sec]')
+plt.ylim(0,500)
+plt.colorbar(label='Intensity (dB)')
+st.pyplot(plt.gcf())
+
+
+
+# Explications
+st.markdown(f"""
+## Analyse du spectrogramme
+
+- **Axe horizontal** : Temps (de 0 à {t_spec[-1]} s)
+- **Axe vertical** : Fréquence (de {f_spec[0]:.1f} à {f_spec[-1]:.1f} Hz)
+- **Couleur** : Intensité du signal (plus c'est chaud, plus c'est intense)
+
+**Observation** :
+- On voit clairement que la fréquence monte de 0 Hz à {f_max} Hz
+- La trace est nette car le signal est pur (pas de bruit)
+""")
+
+st.markdown("""
+## Applications réelles
+- Analyse de la parole (reconnaissance vocale)
+- Étude des chants d'oiseaux
+- Diagnostic de machines (vibrations)
+""")

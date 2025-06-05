@@ -158,6 +158,14 @@ x = carrier
 f_spec, t_spec, Sxx = sp.signal.spectrogram(x, fs)
 
 
+# Spectrogramme
+plt.figure(figsize=(10, 6))
+plt.pcolormesh(t_spec, f_spec, Sxx, shading='gouraud')
+plt.ylabel('Frequency [Hz]')
+plt.xlabel('Time [sec]')
+plt.colorbar(label='Intensity (dB)')
+st.pyplot(plt.gcf())
+
 
 # Visualisation
 fig = go.Figure()
@@ -178,13 +186,8 @@ fig.update_layout(
 )
 st.plotly_chart(fig, use_container_width=True)
 
-# Spectrogramme
-plt.figure(figsize=(10, 6))
-plt.pcolormesh(t_spec, f_spec, Sxx, shading='gouraud')
-plt.ylabel('Frequency [Hz]')
-plt.xlabel('Time [sec]')
-plt.colorbar(label='Intensity (dB)')
-st.pyplot(plt.gcf())
+
+
 
 
 

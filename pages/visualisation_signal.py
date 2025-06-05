@@ -101,7 +101,6 @@ fig_fft.update_layout(title='Spectre ',
 
 st.plotly_chart(fig_fft, use_container_width=True)
 
-
 st.header("3. Puissance d'un signal : explication visuelle")
 st.write(
     """
@@ -141,12 +140,12 @@ st.header("Exemple avec un cosinus")
 st.markdown("Un signal simple : $x(t) = A\cos(2\pi f) t)$ où $f(t)$ change au cours du temps")
 
 # Paramètres
-f_max = 100.0  # Fréquence maximale
+f_max = 100  # Fréquence maximale
 A = st.slider("Amplitude (A)", 0.1, 2.0, 1.0)
-f = st.slider("Fréquence  (Hz)", 1.0, f_max, 10.0)
+f = st.slider("Fréquence (f)",0, f_max, 10, step=1)  # Fréquence du signal
 
 
-fs = 10e3  # Fréquence d'échantillonnage
+fs = 2*10e1  # Fréquence d'échantillonnage
 N = 1e5  # Nombre d'échantillons
 
 time = np.arange(N) / float(fs)
@@ -174,7 +173,7 @@ fig.add_trace(go.Scatter(
 fig.update_layout(
     title="Signal cosinus à fréquence variable",
     xaxis_title="Temps (s)",
-    xaxis=dict(range=[0, time[-1]//100]),
+    xaxis_range=[0, time[500]],
     yaxis_title="Amplitude"
 )
 st.plotly_chart(fig, use_container_width=True)
@@ -184,7 +183,6 @@ plt.figure(figsize=(10, 6))
 plt.pcolormesh(t_spec, f_spec, Sxx, shading='gouraud')
 plt.ylabel('Frequency [Hz]')
 plt.xlabel('Time [sec]')
-plt.ylim(0,500)
 plt.colorbar(label='Intensity (dB)')
 st.pyplot(plt.gcf())
 

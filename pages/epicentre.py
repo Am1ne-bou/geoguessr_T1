@@ -16,7 +16,6 @@ st.write(
 st.header("2. Paramètres des stations et du séisme")
 st.write("Les coordonnées sont données en kilomètres (km)")
 
-# Coordonnées des 3 stations (fixées)
 stations = {
     "Station A": {"x": 200, "y": 300},
     "Station B": {"x": 600, "y": 400},
@@ -63,10 +62,9 @@ if st.button("Afficher la réponse (distances correctes)"):
     st.success(f"Distance onde - Station B : {dB_corr:.1f} km")
     st.success(f"Distance onde - Station C : {dC_corr:.1f} km")
 
-# --- Recherche de l'intersection des 3 cercles (méthode analytique) ---
+
 def intersection_3cercles(xa, ya, ra, xb, yb, rb, xc, yc, rc):
-    # Résolution analytique du système de 3 cercles (méthode des moindres carrés)
-    # Peut donner une approximation si pas d'intersection exacte
+
     A = np.array([
         [2*(xb-xa), 2*(yb-ya)],
         [2*(xc-xa), 2*(yc-ya)]
@@ -85,13 +83,13 @@ xA, yA = stations["Station A"]["x"], stations["Station A"]["y"]
 xB, yB = stations["Station B"]["x"], stations["Station B"]["y"]
 xC, yC = stations["Station C"]["x"], stations["Station C"]["y"]
 
-# Utilisation des distances saisies par l'élève pour la visualisation
+
 x_epi, y_epi = intersection_3cercles(xA, yA, dA_user, xB, yB, dB_user, xC, yC, dC_user)
 
 st.header("4. Visualisation de la localisation (triangulation)")
 fig = go.Figure()
 
-# Cercles des stations
+
 theta = np.linspace(0, 2*np.pi, 200)
 for name, (x, y, r, color) in zip(
     ["A", "B", "C"],

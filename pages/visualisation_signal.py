@@ -15,8 +15,8 @@ st.write(
     """
 )
 
-A = st.slider("Amplitude (A)", min_value=0.0, max_value=100.0, value=50.0, step=1.0)
-f = st.slider("Fréquence (f)", min_value=4.0, max_value=15.0, value=1.0, step=0.1)
+A = st.slider("Amplitude (A)", min_value=0.0, max_value=10.0, value=1.0, step=0.5)
+f = st.slider("Fréquence (f)", min_value=4.0    , max_value=15.0, value=1.0, step=0.1)
 phi = st.slider("Phase (φ en radians)", min_value=0.0, max_value=float(2*np.pi), value=0.0, step=0.1, format="%.2f")
 
 t = np.linspace(0, 2, 1000)

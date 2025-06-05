@@ -102,6 +102,29 @@ fig_fft.update_layout(title='Spectre ',
 st.plotly_chart(fig_fft, use_container_width=True)
 
 
+st.header("3. Puissance d'un signal : explication visuelle")
+st.write(
+    """
+    La **puissance** d'un signal, c'est une façon de mesurer "combien d'énergie" il transporte en moyenne.
+    Pour un signal sinusoïdal, la puissance dépend de l'amplitude : plus l'amplitude est grande, plus la puissance est grande.
+    Pour mieux comprendre, on affiche ci-dessous le signal (en bleu) et son carré (en orange) : le carré du signal montre comment la puissance varie au cours du temps.
+    Plus la courbe orange est haute, plus le signal est puissant à cet instant.
+    """
+)
+
+y2 = y**2
+fig_puissance = go.Figure()
+fig_puissance.add_trace(go.Scatter(x=t, y=y, mode='lines', name='Signal y(t)', line=dict(color='blue')))
+fig_puissance.add_trace(go.Scatter(x=t, y=y2, mode='lines', name='puissance instantanée', line=dict(color='orange')))
+fig_puissance.update_layout(
+    title="Signal et carré du signal (puissance instantanée)",
+    xaxis_title="Temps (t)",
+    yaxis_title="Amplitude / Puissance instantanée",
+    template="plotly_white"
+)
+st.plotly_chart(fig_puissance, use_container_width=True)
+
+
 st.title("Introduction au Spectrogramme")
 st.markdown("""
 ## Qu'est-ce qu'un spectrogramme ?

@@ -2,6 +2,7 @@ import numpy as np
 import plotly.graph_objects as go
 import streamlit as st
 import scipy as sp
+import matplotlib.pyplot as plt
 
 # Configuration de la page
 st.set_page_config(
@@ -82,4 +83,179 @@ with tab3:
         template="plotly_white"
     )
     st.plotly_chart(fig_z, use_container_width=True)
+
+
+st.header("2. Spectrogramme de l'onde sismique")
+st.write(
+    """on utilise le spectrogramme pour visualiser comment les fréquences du signal évoluent dans le temps.
+    On va l'utiliser pour analyser les signaux captés par la station sismique.Et pour detreminer quand les ondes P et S sont arrivées.
+    """
+)
+tab4,tab5,tab6 = st.tabs(["Signal nord_sud (X)", "Signal est_ouest (Y)", "Signal vertical (Z)"])
+
+
+with tab4:
+    # Calcul du spectrogramme
+    f_spec_x, t_spec_x, Sxx = sp.signal.spectrogram(np.array(signal_x), fs=100, nperseg=256, noverlap=255)
+
+    # Sélection de l'intervalle de temps à afficher
+    st.subheader("Choisissez l'intervalle de temps à afficher")
+    t_min_x, t_max_x= st.slider(
+        "Intervalle de temps (en secondes)",
+        min_value=float(time[0]),
+        max_value=float(time[-1]),
+        value=(float(time[0]), float(time[-1])),
+        step=0.1,key='slider_x'
+    )
+
+    # Visualisation
+    fig = go.Figure()
+
+    # Signal temporel (affichage selon l'intervalle choisi)
+    mask = (t_spec_x >= t_min_x) & (t_spec_x <= t_max_x)
+
+    # Création du graphique du spectrogramme
+    fig_spec = go.Figure(data=go.Heatmap(
+        z=Sxx[:,mask],
+        x=t_spec_x[mask],
+        y=f_spec_x,
+        colorscale='Turbo',  
+        colorbar=dict(title='Puissance '),
+        zsmooth='best'
+    ))
+
+    fig_spec.update_layout(
+        title="Spectrogramme interactif - Onde sismique (Nord-Sud)",
+        xaxis=dict(
+            title="Temps (s)",
+            showgrid=True,
+            gridcolor='rgba(200,200,200,0.2)'
+        ),
+        yaxis=dict(
+            title="Fréquence (Hz)",
+            range=[0, 25],  # Limiter la bande utile (par ex. 0-25 Hz)
+            showgrid=True,
+            gridcolor='rgba(200,200,200,0.2)'
+        ),
+        font=dict(
+            family="Arial",
+            size=14
+        ),
+        margin=dict(l=60, r=20, t=50, b=50),
+        height=500,
+        template="plotly_white"
+    )
+
+    # Affichage dans Streamlit
+    st.plotly_chart(fig_spec, use_container_width=True)
+
+with tab5:
+    # Calcul du spectrogramme
+    f_spec_y, t_spec_y, Syy = sp.signal.spectrogram(np.array(signal_y), fs=100, nperseg=256, noverlap=255)
+
+    # Sélection de l'intervalle de temps à afficher
+    st.subheader("Choisissez l'intervalle de temps à afficher")
+    t_min_y, t_max_y = st.slider(
+        "Intervalle de temps (en secondes)",
+        min_value=float(time[0]),
+        max_value=float(time[-1]),
+        value=(float(time[0]), float(time[-1])),
+        step=0.1,key='slider_y'
+    )
+
+    # Visualisation
+    fig = go.Figure()
+
+    # Signal temporel (affichage selon l'intervalle choisi)
+    mask = (t_spec_y >= t_min_y) & (t_spec_y <= t_max_y)
+
+    # Création du graphique du spectrogramme
+    fig_spec = go.Figure(data=go.Heatmap(
+        z=Syy[:,mask],
+        x=t_spec_y[mask],
+        y=f_spec_y,
+        colorscale='Turbo',
+        colorbar=dict(title='Puissance '),
+        zsmooth='best'
+    ))
+
+    fig_spec.update_layout(
+        title="Spectrogramme interactif - Onde sismique (Est-Ouest)",
+        xaxis=dict(
+            title="Temps (s)",
+            showgrid=True,
+            gridcolor='rgba(200,200,200,0.2)'
+        ),
+        yaxis=dict(
+            title="Fréquence (Hz)",
+            range=[0, 25],  # Limiter la bande utile (par ex. 0-25 Hz)
+            showgrid=True,
+            gridcolor='rgba(200,200,200,0.2)'
+        ),
+        font=dict(
+            family="Arial",
+            size=14
+        ),
+        margin=dict(l=60, r=20, t=50, b=50),
+        height=500,
+        template="plotly_white"
+    )
+
+    # Affichage dans Streamlit
+    st.plotly_chart(fig_spec, use_container_width=True)
+
+with tab6:
+    # Calcul du spectrogramme
+    f_spec_z, t_spec_z, Szz = sp.signal.spectrogram(np.array(signal_z), fs=100, nperseg=256, noverlap=255)
+
+    # Sélection de l'intervalle de temps à afficher
+    st.subheader("Choisissez l'intervalle de temps à afficher")
+    t_min_z, t_max_z = st.slider(
+        "Intervalle de temps (en secondes)",
+        min_value=float(time[0]),
+        max_value=float(time[-1]),
+        value=(float(time[0]), float(time[-1])),
+        step=0.1, key='slider_z'
+    )
+
+    # Visualisation
+    fig = go.Figure()
+
+    # Signal temporel (affichage selon l'intervalle choisi)
+    mask = (t_spec_z >= t_min_z) & (t_spec_z <= t_max_z)
+
+    # Création du graphique du spectrogramme
+    fig_spec = go.Figure(data=go.Heatmap(
+        z=Szz[:,mask],
+        x=t_spec_z[mask],
+        y=f_spec_z,
+        colorscale='Turbo',
+        colorbar=dict(title='Puissance '),
+        zsmooth='best'
+    ))
+
+    fig_spec.update_layout(
+        title="Spectrogramme interactif - Onde sismique (Vertical)",
+        xaxis=dict(
+            title="Temps (s)",
+            showgrid=True,
+            gridcolor='rgba(200,200,200,0.2)'
+        ),
+        yaxis=dict(
+            title="Fréquence (Hz)",
+            range=[0, 25],  # Limiter la bande utile (par ex. 0-25 Hz)
+            showgrid=True,
+            gridcolor='rgba(200,200,200,0.2)'
+        ),
+        font=dict(
+            family="Arial",
+            size=14
+        ),
+        margin=dict(l=60, r=20, t=50, b=50),
+        height=500,
+        template="plotly_white"
+    )
+
+    # Affichage dans Streamlit
+    st.plotly_chart(fig_spec, use_container_width=True)
 

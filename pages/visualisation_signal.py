@@ -148,27 +148,126 @@ time = np.arange(N) / float(fs)
 
 carrier = A * np.cos(2*np.pi*f*time)
 
+# Initialiser les états dans la session si besoin
+if "add_5hz" not in st.session_state:
+    st.session_state["add_5hz"] = False
+if "add_30hz" not in st.session_state:
+    st.session_state["add_30hz"] = False
+if "add_60hz" not in st.session_state:
+    st.session_state["add_60hz"] = False
+if "add_15hz" not in st.session_state:
+    st.session_state["add_15hz"] = False
 
-x = carrier
+col1, col2, col3, col4 = st.columns(4)
+
+with col1:
+    if st.button("Ajouter un signal à 5 Hz\n(0-200 s)"):
+        st.session_state["add_5hz"] = not st.session_state["add_5hz"]
+
+with col2:
+    if st.button("Ajouter un signal à 60 Hz\n(150-250 s)"):
+        st.session_state["add_60hz"] = not st.session_state["add_60hz"]
+
+with col3:
+    if st.button("Ajouter un signal à 15 Hz\n(400-500 s)"):
+        st.session_state["add_15hz"] = not st.session_state["add_15hz"]
+
+with col4:
+    if st.button("Ajouter un signal à 30 Hz\n(450-500 s)"):
+        st.session_state["add_30hz"] = not st.session_state["add_30hz"]
+
+# Génération des signaux selon l'état
+if st.session_state["add_60hz"]:
+    c1 = 0.5 * np.cos(2 * np.pi * 60 * time) * ((time >= 150) & (time <= 250))
+else:
+    c1 = np.zeros_like(time)
+
+if st.session_state["add_30hz"]:
+    c2 = 1 * np.cos(2 * np.pi * 30 * time) * ((time >= 450) & (time <= 500))
+else:
+    c2 = np.zeros_like(time)
+
+if st.session_state["add_15hz"]:
+    c3 = 1.5 * np.cos(2 * np.pi * 15 * time) * ((time >= 400) & (time <= 500))
+else:
+    c3 = np.zeros_like(time)
+
+if st.session_state["add_5hz"]:
+    c4 = 1 * np.cos(2 * np.pi * 5 * time) * ((time >= 0) & (time <= 200))
+else:
+    c4 = np.zeros_like(time)
+
+#Bouton bruit
+if "add_noise" not in st.session_state:
+    st.session_state["add_noise"] = False
+
+if st.button("Ajouter du bruit blanc"):
+    st.session_state["add_noise"] = not st.session_state["add_noise"]
+
+if st.session_state["add_noise"]:
+    noise =  np.random.normal(0, 0.5, size=time.shape)  # Bruit blanc
+else:
+    noise = np.zeros_like(time)
+
+x = carrier + c1 + c2 + c3 + c4 + noise
+
 
 f_spec, t_spec, Sxx = sp.signal.spectrogram(x, fs)
 
 
-# Spectrogramme
-plt.figure(figsize=(10, 6))
-plt.pcolormesh(t_spec, f_spec, Sxx, shading='gouraud')
-plt.ylabel('Frequency [Hz]')
-plt.xlabel('Time [sec]')
-plt.colorbar(label='Intensity (dB)')
-st.pyplot(plt.gcf())
+# Création du graphique du spectrogramme
+fig_spec = go.Figure(data=go.Heatmap(
+    z=Sxx,
+    x=t_spec,
+    y=f_spec,
+    colorscale='Turbo',  # plus lisible que 'Viridis' pour ce type de données
+    colorbar=dict(title='Puissance '),
+    zsmooth='best'
+))
 
+fig_spec.update_layout(
+    title="Spectrogramme ",
+    xaxis=dict(
+        title="Temps (s)",
+        showgrid=True,
+        gridcolor='rgba(200,200,200,0.2)'
+    ),
+    yaxis=dict(
+        title="Fréquence (Hz)",
+        range=[0, 101],  # Limiter la bande utile (par ex. 0-20 Hz)
+        showgrid=True,
+        gridcolor='rgba(200,200,200,0.2)'
+    ),
+    font=dict(
+        family="Arial",
+        size=14
+    ),
+    margin=dict(l=60, r=20, t=50, b=50),
+    height=500,
+    template="plotly_white"
+)
+
+st.plotly_chart(fig_spec, use_container_width=True)
+
+
+# Sélection de l'intervalle de temps à afficher
+st.subheader("Choisissez le début de l'intervalle de temps à visualiser")
+t_min = st.slider(
+    "Début de l'intervalle (en secondes)",
+    min_value=float(time[0]),
+    max_value=float(time[-1] - 1.5),
+    value=float(time[0]),
+    step=0.1
+)
+t_max = t_min + 1.5
 
 # Visualisation
 fig = go.Figure()
 
-# Signal temporel
+# Signal temporel (affichage selon l'intervalle choisi)
+mask = (time >= t_min) & (time <= t_max)
 fig.add_trace(go.Scatter(
-    x=time, y=x,
+    x=time[mask], y=x[mask],
     mode='lines',
     name='Signal',
     line=dict(color='blue', width=1)
@@ -177,7 +276,7 @@ fig.add_trace(go.Scatter(
 fig.update_layout(
     title="Signal cosinus à fréquence variable",
     xaxis_title="Temps (s)",
-    xaxis_range=[0, time[500]],
+    xaxis_range=[t_min, t_max],
     yaxis_title="Amplitude"
 )
 st.plotly_chart(fig, use_container_width=True)

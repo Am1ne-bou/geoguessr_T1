@@ -234,7 +234,7 @@ fig_spec.update_layout(
     ),
     yaxis=dict(
         title="Fréquence (Hz)",
-        range=[0, 101],  # Limiter la bande utile (par ex. 0-20 Hz)
+        range=[0, 100],  # Limiter la bande utile (par ex. 0-20 Hz)
         showgrid=True,
         gridcolor='rgba(200,200,200,0.2)'
     ),

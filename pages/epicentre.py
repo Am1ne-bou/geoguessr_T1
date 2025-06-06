@@ -83,3 +83,47 @@ with st.expander("Afficher la correction des distances"):
     st.markdown("**Distances exactes entre chaque station et son épicentre le plus proche :**")
     for i, (nom, x, y) in enumerate(stations):
         st.write(f"- {nom} → Épicentre {epicentre_associe[i]} : {distances[i]:.1f} km")
+# 4. Graphique
+fig = go.Figure()
+theta = np.linspace(0, 2*np.pi, 200)
+colors = ["red", "green", "purple"]
+
+for i, (nom, x, y) in enumerate(stations):
+
+    fig.add_trace(go.Scatter(
+        x=[x], y=[y],
+        mode="markers+text",
+        marker=dict(size=10, color="blue"),
+        text=[nom],
+        textposition="top center",
+        showlegend=False
+    ))
+
+    if st.session_state.show_circles[i]:
+        r = user_distances[i]
+        color = colors[(epicentre_associe[i] - 1) % len(colors)]
+        fig.add_trace(go.Scatter(
+            x=x + r * np.cos(theta),
+            y=y + r * np.sin(theta),
+            mode="lines",
+            line=dict(color=color, dash="dot"),
+            name=f"Cercle {nom}",
+            showlegend=False
+        ))
+
+fig.update_layout(
+    title="Localisation des épicentres par triangulation",
+    xaxis_title="x (km)",
+    yaxis_title="y (km)",
+    template="plotly_white",
+    width=800, height=800,
+    legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01)
+)
+st.plotly_chart(fig, use_container_width=True)
+
+
+st.header("4. Correction : coordonnées des épicentres")
+if st.button("Afficher les épicentres"):
+    st.write("Les épicentres sont :")
+    for i, (ex, ey) in enumerate(epicentres):
+        st.success(f"Épicentre {i+1} : x = {ex} km, y = {ey} km")

@@ -305,3 +305,21 @@ st.markdown("""
 - Étude des chants d'oiseaux
 - Diagnostic de machines (vibrations)
 """)
+
+st.title("écoute de cosinus")
+
+
+sample_rate = 44100  
+duration = st.slider("Durée (s)", 1, 10, 2)
+amplitude = st.slider("Amplitude", 1,1000, 10)
+frequency = st.slider("Fréquence (Hz)", 50, 20000, 440)
+phase = st.slider("Phase (radians)", 0.0, float(2*np.pi), 0.0, step=0.1, format="%.2f")
+
+t = np.linspace(0, duration, int(sample_rate * duration), endpoint=False)
+signal = amplitude * np.cos(2 * np.pi * frequency * t + phase)
+
+signal = signal.astype(np.float32)
+st.write(f"**Aperçu du signal:** {amplitude} x cos(2π x {frequency} x t+{phase:.2f})")
+
+
+st.audio(signal, sample_rate=sample_rate) 

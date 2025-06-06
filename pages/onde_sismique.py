@@ -24,9 +24,10 @@ signal_x = []
 signal_y = []
 signal_z = []
 
-time=np.linspace(0, 120, 12000)
 
-for i in range(12000):
+time=np.linspace(0, 120, len(signal_5))
+
+for i in range(len(signal_5)):
     signal_x.append(signal_5[i][0])
     signal_y.append(signal_5[i][1])
     signal_z.append(signal_5[i][2])
@@ -44,8 +45,17 @@ fig.update_layout(
     xaxis_title="Temps (s)",
     yaxis_title="Amplitude",
     template="plotly_white"
-)
+)       
 st.plotly_chart(fig, use_container_width=True)
+fig1 = go.Figure()
+fig1.add_trace(go.Scatter(x=time, y=signal_x+signal_y+signal_z, mode='lines', name='Signal combiné',line=dict(color='purple')))
+fig1.update_layout(
+    title="Signal combiné (X + Y + Z)",
+    xaxis_title="Temps (s)",
+    yaxis_title="Amplitude",
+    template="plotly_white"
+) 
+st.plotly_chart(fig1, use_container_width=True)
 
 tab1, tab2, tab3 = st.tabs(["Signal nord_sud (X)", "Signal est_ouest (Y)", "Signal vertical (Z)"])
 with tab1:
@@ -84,6 +94,24 @@ with tab3:
     )
     st.plotly_chart(fig_z, use_container_width=True)
 
+#écouter le signal
+st.write("""
+    On peut écouter le signal sismique en cliquant sur le bouton ci-dessous.
+""")
+
+audio_signal = np.array(signal_x + signal_y + signal_z)
+audio_signal = audio_signal.astype(np.float32)
+audio_signal /= np.max(np.abs(audio_signal))
+audio_signal =audio_signal*5
+
+sample_rate = 12000
+st.write("Le signal est acceleré pour qu'on puisse l'écouter .")
+
+st.audio(audio_signal, sample_rate=sample_rate)
+
+acceleration_factor = sample_rate/ 100  # Accélération du signal pour l'écouter
+
+st.write(f"✅ Le signal a été accéléré d’un facteur {acceleration_factor:.1f} pour être écoutable.")
 
 st.header("2. Spectrogramme de l'onde sismique")
 st.write(

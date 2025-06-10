@@ -318,7 +318,6 @@ phase = st.slider("Phase (radians)", 0.0, float(2*np.pi), 0.0, step=0.1, format=
 t = np.linspace(0, duration, int(sample_rate * duration), endpoint=False)
 signal = amplitude * np.cos(2 * np.pi * frequency * t + phase)
 
-signal = signal.astype(np.float32)
 st.write(f"**Aperçu du signal:** {amplitude} x cos(2π x {frequency} x t+{phase:.2f})")
 
 

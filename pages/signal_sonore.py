@@ -5,17 +5,43 @@ import plotly.graph_objects as go
 st.title("Enregistrement et analyse d'un signal sonore")
 
 st.header("1. Enregistrez votre voix ou un son")
-audio = st.audio_input("Cliquez pour enregistrer un son (max 10s)")
+if "record" not in st.session_state:
+    st.session_state["record"]=False
+if "upload" not in st.session_state:
+    st.session_state["upload"]=False
+
+if "audio" not in st.session_state:
+    st.session_state["audio"]=None
+
+
+
+col1, col2 = st.columns(2)
+with col1:
+    audio_recorded = st.audio_input("Cliquez pour enregistrer un son (max 10s)")
+    if audio_recorded is not None:
+        st.session_state["audio"] = audio_recorded
+        st.session_state["record"] = True
+        st.session_state["upload"] = False
+
+with col2:
+    audio_uploaded = st.file_uploader("Upload your audio (mp3/wav)", type=["mp3", "wav"])
+    if audio_uploaded is not None:
+        st.session_state["audio"] = audio_uploaded
+        st.session_state["record"] = False
+        st.session_state["upload"] = True
+
+audio = st.session_state["audio"]
 
 if audio is not None:
-    import soundfile as sf #voir biblio soundfile en detail pour mieux savoir comment ça fonctionne
-    import io # entrée/sortie deflux pratique pour manipuler fichiers audio
+    import soundfile as sf
+    import io
 
-    data, samplerate = sf.read(io.BytesIO(audio.getvalue())) 
-    y = data[:, 0] if data.ndim > 1 else data #probleme avec stereo (+ facile d'utiliser un seul canal)
+    data, samplerate = sf.read(io.BytesIO(audio.getvalue()))
+    y = data[:, 0] if data.ndim > 1 else data
     t = np.arange(len(y)) / samplerate
 
-    st.audio(audio, format="audio/wav")
+    st.audio(audio, format="audio/mp3" if audio.type == "audio/mp3" else "audio/wav")
+
     st.header("2. Visualisation du signal dans le temps")
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=t, y=y, mode='lines', name='Signal audio'))

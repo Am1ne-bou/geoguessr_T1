@@ -2,7 +2,7 @@ import streamlit as st
 import numpy as np
 
 st.title("Découverte des séismes")
-
+st.video("https://www.youtube.com/watch?v=kU-Q0vFJK_M&ab_channel=LeHuffPost")
 st.header("1. Qu'est-ce qu'un séisme ?")
 st.write("""
 Un **séisme** (ou tremblement de terre) est une vibration du sol causée par la libération soudaine d'énergie dans la croûte terrestre.
@@ -47,7 +47,7 @@ if st.checkbox("Afficher la réponse (ondes S)"):
 st.header("3. Un séisme, c'est où et quand ?")
          
 st.image("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQefF0dub_B01O-md5KDb2fRPlKsIWchzCUHw&s", caption="Schéma d'un séisme")
-st.write(""")
+st.write("""
 Quand un séisme a lieu, les ondes partent du foyer et se propagent dans toutes les directions.
 """)
 
@@ -96,6 +96,21 @@ if st.button("Valider mes réponses (activité 3)"):
 st.header("5. Séisme et signaux: le lien")
 st.write("""
 Les stations sismiques transforment les vibrations du sol en **signaux** (courbes d'amplitude en fonction du temps).
+Ces signaux sont appelés **sismogrammes**.
+
+Un sismogramme est l'enregistrement des mouvements du sol lors d'un séisme, réalisé par un capteur appelé **sismomètre**.
+On peut y repérer l'arrivée des différentes ondes (P, S, de surface).
+
+Ci-dessous, un exemple de sismogramme enregistré sur trois axes (vertical, nord-sud, est-ouest) :
+""")
+
+st.image(
+    "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sisma_three_components.jpg/500px-Sisma_three_components.jpg",
+    caption="Exemple de sismogramme : enregistrement d'un séisme sur trois axes",
+    use_container_width=True
+)
+
+st.write("""
 En étudiant ces signaux, on peut :
 - Détecter un séisme
 - Trouver l'heure et le lieu du séisme

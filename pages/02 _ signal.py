@@ -321,4 +321,4 @@ signal = amplitude * np.cos(2 * np.pi * frequency * t + phase)
 st.write(f"**Aperçu du signal:** {amplitude} x cos(2π x {frequency} x t+{phase:.2f})")
 
 
-st.audio(signal, sample_rate=sample_rate) 
+st.audio(signal, sample_rate=sample_rate, loop = True)

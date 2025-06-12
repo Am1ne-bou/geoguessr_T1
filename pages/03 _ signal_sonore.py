@@ -67,6 +67,52 @@ if audio is not None:
         "[Voir le tableau de correspondance notes/fréquences (Hz)](https://i0.wp.com/musicordes.fr/wp-content/uploads/2017/02/frequence-notes-hertz.jpg?resize=1024%2C686&ssl=1)"
     )
 
+    st.header("Principe du spectrogramme")
+    st.write(
+        """
+        Un **spectrogramme** permet de visualiser comment les fréquences d'un signal évoluent au cours du temps.
+        Contrairement au spectre global qui donne toutes les fréquences présentes dans le signal, le spectrogramme montre à quel moment chaque fréquence apparaît ou disparaît.
+        Voici un exemple de spectrogramme pour un signal simple : un cosinus de fréquence 500 Hz.
+        """
+    )
+
+    # Utilisation de session_state pour afficher/masquer le spectrogramme du cosinus
+    if "show_cos_spectro" not in st.session_state:
+        st.session_state["show_cos_spectro"] = False
+
+    col_cos1, col_cos2 = st.columns([1, 3])
+    with col_cos1:
+        if st.button(
+            "Afficher le spectrogramme du cosinus" if not st.session_state["show_cos_spectro"] else "Masquer le spectrogramme du cosinus",
+            key="toggle_cos_spectro"
+        ):
+            st.session_state["show_cos_spectro"] = not st.session_state["show_cos_spectro"]
+
+    with col_cos2:
+        if st.session_state["show_cos_spectro"]:
+            from scipy.signal import spectrogram
+            fs_demo = 8000
+            t_demo = np.linspace(0, 1, fs_demo, endpoint=False)
+            y_demo = np.cos(2 * np.pi * 500 * t_demo)
+            f_demo, t_spec_demo, Sxx_demo = spectrogram(y_demo, fs=fs_demo, nperseg=512, noverlap=256)
+            fig_demo = go.Figure(
+                data=go.Heatmap(
+                    z=10 * np.log10(Sxx_demo + 1e-10),
+                    x=t_spec_demo,
+                    y=f_demo,
+                    colorscale="Viridis",
+                    colorbar=dict(title="dB"),
+                )
+            )
+            fig_demo.update_layout(
+                title="Spectrogramme d'un cosinus de 500 Hz",
+                xaxis_title="Temps (s)",
+                yaxis_title="Fréquence (Hz)",
+                yaxis_range=[0, 2000],
+                template="plotly_white"
+            )
+            st.plotly_chart(fig_demo, use_container_width=True)
+
     st.header("4. À vous de jouer !")
     st.write(
         "Dans ce fichier audio, il y a 3 notes différentes jouées successivement. "
@@ -74,7 +120,7 @@ if audio is not None:
     )
 
     st.write(
-        "Pour savoir à quel moment chaque note arrive, clique sur le bouton ci-dessous pour afficher le **spectrogramme** (fréquence en fonction du temps) :"
+        "Pour savoir à quel moment chaque note arrive, clique sur le bouton ci-dessous pour afficher le **spectrogramme** (fréquence en fonction du temps) :"
     )
 
     if st.button("Afficher le spectrogramme"):

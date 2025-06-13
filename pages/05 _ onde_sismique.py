@@ -1,8 +1,9 @@
 import numpy as np
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots 
 import streamlit as st
 import scipy as sp
-import matplotlib.pyplot as plt
+
 
 # Configuration de la page
 st.set_page_config(
@@ -10,6 +11,20 @@ st.set_page_config(
     layout="wide")
 
 st.title("Onde sismique")
+
+
+# Introduction
+st.subheader("Introduction")
+st.write(
+    """
+    Cette application permet de visualiser et d'écouter une onde sismique .
+    Elle permet également de détecter les ondes P et S dans les signaux sismiques.
+    Pour but de estimer la distance à l'épicentre du séisme.
+    Vous pouvez interagir avec les graphiques et les paramètres pour mieux comprendre le comportement des ondes sismiques.
+    """
+)
+
+
 st.header("1. Visualisation d'une onde sismique")
 st.write(
     """
@@ -17,22 +32,34 @@ st.write(
     Dans cette application, nous visualisons une onde sismique captee par une station japonaise.
     """
 )
-data=sp.io.loadmat("recording1.mat")
+time= np.linspace(0, 120, 12000)  # Temps de 0 à 120 secondes avec 1200 points
 
-signal_5 = data["list"][0][4][0]
-signal_x = []
-signal_y = []
-signal_z = []
+signal_x = np.zeros_like(time)
+signal_x += np.random.normal(0, 0.1, size=time.shape) + np.random.normal(0, 1, size=time.shape)*((time >= 15) & (time <= 120))
+signal_y = np.zeros_like(time)
+signal_y += np.random.normal(0, 0.1, size=time.shape) + np.random.normal(0, 1, size=time.shape)*((time >= 15) & (time <= 120)) 
+signal_z = np.zeros_like(time)
+signal_z += np.random.normal(0, 0.1, size=time.shape) + np.random.normal(0, 1, size=time.shape)*((time >= 15) & (time <= 120))
+#ajout p
+signal_p= sum(10*np.random.uniform(-0.5, 0.5) * np.cos(2 * np.pi * (10+np.random.normal(-1, 1) * time))*((time >=20 ) & (time <= 40)) for _ in range(1000))
+#ajout s
+signal_s= sum(20*np.random.uniform(-0.5, 0.5) * np.cos(2 * np.pi * (1+np.random.normal(-0.5, 1) * time))*((time >=60 ) & (time <= 80)) for _ in range(1000))
+#ajout surface
+signal_surface = sum(50*np.random.uniform(-0.5, 0.5) * np.cos(2 * np.pi * (1+np.random.normal(-0.1, 0.5) * time))*((time >=70 ) & (time <= 120)) for _ in range(1000))
 
 
-time=np.linspace(0, 120, len(signal_5))
+signal_x += sum(0.5*np.random.uniform(-0.5, 0.5) * np.cos(2 * np.pi * (10+np.random.normal(-1, 1) * time))*((time >=15 ) & (time <= 30)) for _ in range(1000))
+signal_x += sum(15*np.random.uniform(-0.5, 0.5) * np.cos(2 * np.pi * (1+np.random.normal(-0.5, 1) * time))*((time >=40 ) & (time <= 60)) for _ in range(1000))  
+signal_x += sum(22*np.random.uniform(-0.5, 0.5) * np.cos(2 * np.pi * (0.5+np.random.normal(-0.1, 0.5) * time))*((time >=60 ) & (time <= 100)) for _ in range(1000))
 
-for i in range(len(signal_5)):
-    signal_x.append(signal_5[i][0])
-    signal_y.append(signal_5[i][1])
-    signal_z.append(signal_5[i][2])
+signal_y += sum(0.5*np.random.uniform(-0.5, 0.5) * np.cos(2 * np.pi * (10+np.random.normal(-1, 1) * time))*((time >=15 ) & (time <= 30)) for _ in range(1000))
+signal_y += sum(15*np.random.uniform(-0.5, 0.5) * np.cos(2 * np.pi * (1+np.random.normal(-0.5, 1) * time))*((time >=40 ) & (time <= 60)) for _ in range(1000))
+signal_y += sum(22*np.random.uniform(-0.5, 0.5) * np.cos(2 * np.pi * (0.5+np.random.normal(-0.1, 0.5) * time))*((time >=60 ) & (time <= 100)) for _ in range(1000))
 
 
+signal_z += sum(10*np.random.uniform(-0.5, 0.5) * np.cos(2 * np.pi * (10+np.random.normal(-1, 1) * time))*((time >=15 ) & (time <= 30)) for _ in range(1000))
+signal_z += sum(2*np.random.uniform(-0.5, 0.5) * np.cos(2 * np.pi * (1+np.random.normal(-0.5, 1) * time))*((time >=40 ) & (time <= 60)) for _ in range(1000))
+signal_z += sum(22*np.random.uniform(-0.5, 0.5) * np.cos(2 * np.pi * (4+np.random.normal(-0.1, 0.5) * time))*((time >=60 ) & (time <= 100)) for _ in range(1000))
 
 # Création du graphique
 fig = go.Figure()
@@ -47,6 +74,7 @@ fig.update_layout(
     template="plotly_white"
 )       
 st.plotly_chart(fig, use_container_width=True)
+
 fig1 = go.Figure()
 fig1.add_trace(go.Scatter(x=time, y=signal_x+signal_y+signal_z, mode='lines', name='Signal combiné',line=dict(color='purple')))
 fig1.update_layout(
@@ -57,93 +85,60 @@ fig1.update_layout(
 ) 
 st.plotly_chart(fig1, use_container_width=True)
 
-tab1, tab2, tab3 = st.tabs(["Signal nord_sud (X)", "Signal est_ouest (Y)", "Signal vertical (Z)"])
-with tab1:
-    st.subheader("Signal nord_sud (X)")
-    fig_x = go.Figure()
-    fig_x.add_trace(go.Scatter(x=time, y=signal_x, mode='lines', name='Signal nord_sud (X)',line=dict(color='blue')))  
-    fig_x.update_layout(
+st.subheader("""Comparaison le temps de depart des signaux X, Y et Z""")
+st.write("""Choisissons une intervalle de temps pour visualiser les signaux X, Y et Z""")
+t0, t1 = st.slider(
+    "Intervalle de temps pour visualiser les signaux (en secondes)",
+    min_value=0.0,
+    max_value=120.0,
+    value=(0.0, 120.0),
+    step=0.1,
+    key='slider_time'
+)
+# Filtrage des signaux dans l'intervalle de temps choisi
+mask = (time >= t0) & (time <= t1)
+
+st.subheader("Signal nord_sud (X)")
+fig_x = go.Figure()
+fig_x.add_trace(go.Scatter(x=time[mask], y=signal_x[mask], mode='lines', name='Signal nord_sud (X)',line=dict(color='blue')))  
+fig_x.update_layout(
         title="Signal nord_sud (X)",
         xaxis_title="Temps (s)",
         yaxis_title="Amplitude",
         template="plotly_white"
     )
-    st.plotly_chart(fig_x, use_container_width=True)
-
-with tab2:
-    st.subheader("Signal est_ouest (Y)")
-    fig_y = go.Figure()
-    fig_y.add_trace(go.Scatter(x=time, y=signal_y, mode='lines', name='Signal est_ouest (Y)',line=dict(color='red')))
-    fig_y.update_layout(
+st.plotly_chart(fig_x, use_container_width=True)
+st.subheader("Signal est_ouest (Y)")
+fig_y = go.Figure()
+fig_y.add_trace(go.Scatter(x=time[mask], y=signal_y[mask], mode='lines', name='Signal est_ouest (Y)',line=dict(color='red')))
+fig_y.update_layout(
         title="Signal est_ouest (Y)",
         xaxis_title="Temps (s)",
         yaxis_title="Amplitude",
         template="plotly_white"
     )
-    st.plotly_chart(fig_y, use_container_width=True)
-
-with tab3:
-    st.subheader("Signal vertical (Z)")
-    fig_z = go.Figure()
-    fig_z.add_trace(go.Scatter(x=time, y=signal_z, mode='lines', name='Signal vertical (Z)',line=dict(color='lime')))
-    fig_z.update_layout(
+st.plotly_chart(fig_y, use_container_width=True)
+st.subheader("Signal vertical (Z)")
+fig_z = go.Figure()
+fig_z.add_trace(go.Scatter(x=time[mask], y=signal_z[mask], mode='lines', name='Signal vertical (Z)',line=dict(color='lime')))
+fig_z.update_layout(
         title="Signal vertical (Z)",
         xaxis_title="Temps (s)",
         yaxis_title="Amplitude",
         template="plotly_white"
     )
-    st.plotly_chart(fig_z, use_container_width=True)
+st.plotly_chart(fig_z, use_container_width=True)
 
-st.header("2. Quiz rapide")
+
 st.write(
     """
-    Répondez aux questions suivantes pour tester vos connaissances sur les ondes sismiques.
+    On peut remarquer que le signal nord-sud (X) et le signal est-ouest (Y) ont un temps de départ similaire, tandis que le signal vertical (Z) a un temps de départ différent.
+    Cela est dû à la nature des ondes sismiques qui se propagent différemment dans les différentes directions.
     """
 )
-question1 = st.radio(
-    "Quelle est la différence principale entre les ondes P et S ?",
-    [
-        "Les ondes P sont plus rapides que les ondes S.",
-        "Les ondes S sont plus rapides que les ondes P.",
-        "Les ondes P et S ont la même vitesse."
-    ]
-)
-if st.button("Vérifier ma réponse 1"):
-    if question1 == "Les ondes P sont plus rapides que les ondes S.":
-        st.success("Bravo ! C’est la bonne réponse.")
-    else:
-        st.error("Ce n'est pas la bonne réponse. Essayez encore !")
 
-question2 = st.radio(
-    "Quel type de mouvement les ondes P provoquent-elles dans le sol ?",
-    [
-        "Mouvement vertical",
-        "Mouvement horizontal",
-        "Mouvement circulaire"
-    ]
-)
-if st.button("Vérifier ma réponse 2"):
-    if question2 == "Mouvement vertical":
-        st.success("Bravo ! C’est la bonne réponse.")
-    else:
-        st.error("Ce n'est pas la bonne réponse. Essayez encore !")
+st.header("2. Écoute du signal sismique")   
 
-question3 = st.radio(
-    "Quel type de mouvement les ondes S provoquent-elles dans le sol ?",
-    [
-        "Mouvement vertical",
-        "Mouvement horizontal",
-        "Mouvement circulaire"
-    ]
-)
-
-if st.button("Vérifier ma réponse 3"):
-    if question3 == "Mouvement horizontal":
-        st.success("Bravo ! C’est la bonne réponse.")
-    else:
-        st.error("Ce n'est pas la bonne réponse. Essayez encore !")
-
-#écouter le signal
 st.write("""
     On peut écouter le signal sismique en cliquant sur le bouton ci-dessous.
 """)
@@ -153,7 +148,7 @@ audio_signal = audio_signal.astype(np.float32)
 audio_signal /= np.max(np.abs(audio_signal))
 audio_signal =audio_signal*5
 
-sample_rate = 12000
+sample_rate = 3000
 st.write("Le signal est acceleré pour qu'on puisse l'écouter .")
 
 st.audio(audio_signal, sample_rate=sample_rate)
@@ -162,180 +157,10 @@ acceleration_factor = sample_rate/ 100  # Accélération du signal pour l'écout
 
 st.write(f"✅ Le signal a été accéléré d’un facteur {acceleration_factor:.1f} pour être écoutable.")
 
-st.header("3. Spectrogramme de l'onde sismique")
-st.write(
-    """on utilise le spectrogramme pour visualiser comment les fréquences du signal évoluent dans le temps.
-    On va l'utiliser pour analyser les signaux captés par la station sismique.Et pour detreminer quand les ondes P et S sont arrivées.
-    """
-)
-tab4,tab5,tab6 = st.tabs(["Signal nord_sud (X)", "Signal est_ouest (Y)", "Signal vertical (Z)"])
 
+st.header("3. Détection des ondes P et S dans les signaux sismiques avec l'énergie ")
 
-with tab4:
-    # Calcul du spectrogramme
-    f_spec_x, t_spec_x, Sxx = sp.signal.spectrogram(np.array(signal_x), fs=100, nperseg=256, noverlap=255)
-
-    # Sélection de l'intervalle de temps à afficher
-    st.subheader("Choisissez l'intervalle de temps à afficher")
-    t_min_x, t_max_x= st.slider(
-        "Intervalle de temps (en secondes)",
-        min_value=float(time[0]),
-        max_value=float(time[-1]),
-        value=(float(time[0]), float(time[-1])),
-        step=0.1,key='slider_x'
-    )
-
-    # Visualisation
-    fig = go.Figure()
-
-    # Signal temporel (affichage selon l'intervalle choisi)
-    mask = (t_spec_x >= t_min_x) & (t_spec_x <= t_max_x)
-
-    # Création du graphique du spectrogramme
-    fig_spec = go.Figure(data=go.Heatmap(
-        z=Sxx[:,mask],
-        x=t_spec_x[mask],
-        y=f_spec_x,
-        colorscale='Turbo',  
-        colorbar=dict(title='Puissance '),
-        zsmooth='best'
-    ))
-
-    fig_spec.update_layout(
-        title="Spectrogramme interactif - Onde sismique (Nord-Sud)",
-        xaxis=dict(
-            title="Temps (s)",
-            showgrid=True,
-            gridcolor='rgba(200,200,200,0.2)'
-        ),
-        yaxis=dict(
-            title="Fréquence (Hz)",
-            range=[0, 25],  # Limiter la bande utile (par ex. 0-25 Hz)
-            showgrid=True,
-            gridcolor='rgba(200,200,200,0.2)'
-        ),
-        font=dict(
-            family="Arial",
-            size=14
-        ),
-        margin=dict(l=60, r=20, t=50, b=50),
-        height=500,
-        template="plotly_white"
-    )
-
-    # Affichage dans Streamlit
-    st.plotly_chart(fig_spec, use_container_width=True)
-
-with tab5:
-    # Calcul du spectrogramme
-    f_spec_y, t_spec_y, Syy = sp.signal.spectrogram(np.array(signal_y), fs=100, nperseg=256, noverlap=255)
-
-    # Sélection de l'intervalle de temps à afficher
-    st.subheader("Choisissez l'intervalle de temps à afficher")
-    t_min_y, t_max_y = st.slider(
-        "Intervalle de temps (en secondes)",
-        min_value=float(time[0]),
-        max_value=float(time[-1]),
-        value=(float(time[0]), float(time[-1])),
-        step=0.1,key='slider_y'
-    )
-
-    # Visualisation
-    fig = go.Figure()
-
-    # Signal temporel (affichage selon l'intervalle choisi)
-    mask = (t_spec_y >= t_min_y) & (t_spec_y <= t_max_y)
-
-    # Création du graphique du spectrogramme
-    fig_spec = go.Figure(data=go.Heatmap(
-        z=Syy[:,mask],
-        x=t_spec_y[mask],
-        y=f_spec_y,
-        colorscale='Turbo',
-        colorbar=dict(title='Puissance '),
-        zsmooth='best'
-    ))
-
-    fig_spec.update_layout(
-        title="Spectrogramme interactif - Onde sismique (Est-Ouest)",
-        xaxis=dict(
-            title="Temps (s)",
-            showgrid=True,
-            gridcolor='rgba(200,200,200,0.2)'
-        ),
-        yaxis=dict(
-            title="Fréquence (Hz)",
-            range=[0, 25],  # Limiter la bande utile (par ex. 0-25 Hz)
-            showgrid=True,
-            gridcolor='rgba(200,200,200,0.2)'
-        ),
-        font=dict(
-            family="Arial",
-            size=14
-        ),
-        margin=dict(l=60, r=20, t=50, b=50),
-        height=500,
-        template="plotly_white"
-    )
-
-    # Affichage dans Streamlit
-    st.plotly_chart(fig_spec, use_container_width=True)
-
-with tab6:
-    # Calcul du spectrogramme
-    f_spec_z, t_spec_z, Szz = sp.signal.spectrogram(np.array(signal_z), fs=100, nperseg=256, noverlap=255)
-
-    # Sélection de l'intervalle de temps à afficher
-    st.subheader("Choisissez l'intervalle de temps à afficher")
-    t_min_z, t_max_z = st.slider(
-        "Intervalle de temps (en secondes)",
-        min_value=float(time[0]),
-        max_value=float(time[-1]),
-        value=(float(time[0]), float(time[-1])),
-        step=0.1, key='slider_z'
-    )
-
-    # Visualisation
-    fig = go.Figure()
-
-    
-    mask = (t_spec_z >= t_min_z) & (t_spec_z <= t_max_z)
-
-    # Création du graphique du spectrogramme
-    fig_spec = go.Figure(data=go.Heatmap(
-        z=Szz[:,mask],
-        x=t_spec_z[mask],
-        y=f_spec_z,
-        colorscale='Turbo',
-        colorbar=dict(title='Puissance '),
-        zsmooth='best'
-    ))
-
-    fig_spec.update_layout(
-        title="Spectrogramme interactif - Onde sismique (Vertical)",
-        xaxis=dict(
-            title="Temps (s)",
-            showgrid=True,
-            gridcolor='rgba(200,200,200,0.2)'
-        ),
-        yaxis=dict(
-            title="Fréquence (Hz)",
-            range=[0, 25],  # Limiter la bande utile (par ex. 0-25 Hz)
-            showgrid=True,
-            gridcolor='rgba(200,200,200,0.2)'
-        ),
-        font=dict(
-            family="Arial",
-            size=14
-        ),
-        margin=dict(l=60, r=20, t=50, b=50),
-        height=500,
-        template="plotly_white"
-    )
-
-    st.plotly_chart(fig_spec, use_container_width=True)
-
-def bandpass_filter(data, lowcut, highcut, fs, order=4):
+def bandpass_filter(data, lowcut, highcut, fs, order=1):
     nyq = 0.5 * fs
     low = lowcut / nyq
     high = highcut / nyq
@@ -348,12 +173,12 @@ def compute_energy_envelope(filtered_signal, fs, window_sec=0.5):
     energy = np.convolve(np.abs(filtered_signal)**2, np.ones(window_size), mode='same')
     return energy / np.max(energy)  # normalisé
 
-st.header("4. Détection des ondes P et S")
+
 st.write(
     """    Dans cette section, nous allons détecter les ondes P et S dans les signaux sismiques captés par la station.
     Les ondes P (primaires) sont des ondes de compression qui se déplacent plus rapidement que les ondes S (secondaires), qui sont des ondes de cisaillement.
-    Nous allons utiliser un filtre passe-bande pour isoler les fréquences typiques de ces ondes.
-    Et nous allons visualiser l'énergie de l'enveloppe du signal pour identifier les pics correspondant aux ondes P et S et détecter leur arrivée dans le signal.
+    Nous allons isoler les fréquences typiques de ces ondes.
+    Et nous allons visualiser l'énergie du signal pour identifier les pics correspondant aux ondes P et S et détecter leur arrivée dans le signal.
     """)
 
 fs = 110  # fréquence d'échantillonnage
@@ -406,26 +231,13 @@ signal_choice = st.selectbox("Sélectionnez le signal", ("Nord-Sud", "Est-Ouest"
 if signal_choice == "Nord-Sud":
     # Filtrage dans les bandes typiques des ondes P et S
     fig_puissance_x = go.Figure()
-    signal_p = bandpass_filter(signal_x, f_min_p, f_max_p, fs)   # Onde P
     signal_s = bandpass_filter(signal_x, f_min_s, f_max_s, fs)  # Onde S
 
-    energie_p = compute_energy_envelope(signal_p, fs)
     energie_s = compute_energy_envelope(signal_s, fs)
 
     
-    # Traces de l’énergie et des pics
-    fig_puissance_x.add_trace(go.Scatter(x=time, y=energie_p, mode='lines', name='Énergie onde P', line=dict(color='green')))
-    fig_puissance_x.add_trace(go.Scatter(x=time, y=energie_s, mode='lines', name='Énergie onde S', line=dict(color='purple')))
-
     #Temps d'arrivée des ondes P et S avant verification donne par l'utilisateur
-    t_p_x=st.slider(
-        "Temps d'arrivée de l'onde P (en secondes)",
-        min_value=float(time[0]),
-        max_value=float(time[-1]),
-        value=(float(time[0])),
-        step=0.1,
-        key='slider_tp'
-    )
+
     t_s_x=st.slider(
         "Temps d'arrivée de l'onde S (en secondes)",
         min_value=float(time[0]),
@@ -435,29 +247,23 @@ if signal_choice == "Nord-Sud":
         key='slider_ts'
     )
 
-    if st.button("Verification des temps d'arrivée des ondes P et S"):
-        signal_p = bandpass_filter(signal_x, 8, 12, fs)   # Onde P
+    if st.button("Verification des temps d'arrivée de l'onde S"):
         signal_s = bandpass_filter(signal_x, 0.5, 2, fs)  # Onde S
 
-        energie_p = compute_energy_envelope(signal_p, fs)
         energie_s = compute_energy_envelope(signal_s, fs)
 
         # Détection de pics
-        peaks_p, _ = sp.signal.find_peaks(energie_p, height=0.1, distance=int(0.3 * fs))
-        peaks_s, _ = sp.signal.find_peaks(energie_s, height=0.1, distance=int(0.3 * fs))
+        peaks_s, _ = sp.signal.find_peaks(energie_s, height=0.05, distance=int(0.3 * fs))
 
         # Traces de l’énergie et des pics
-        fig_puissance_x.add_trace(go.Scatter(x=time, y=energie_p, mode='lines', name='Énergie onde P', line=dict(color='lime')))
         fig_puissance_x.add_trace(go.Scatter(x=time, y=energie_s, mode='lines', name='Énergie onde S', line=dict(color='blue')))
         
-        if len(peaks_p) > 0 and len(peaks_s) > 0:
-            t_p_x = time[peaks_p[0]]
+        if  len(peaks_s) > 0:
             t_s_x = time[peaks_s[0]]
 
-            st.success(f"🟢 Onde P détectée à t = {t_p_x:.2f} s (≈10 Hz)")
+            
             st.success(f"🟣 Onde S détectée à t = {t_s_x:.2f} s (≈1 Hz)")
 
-            fig_puissance_x.add_vline(x=t_p_x, line_dash="dash", line_color="green", annotation_text="Onde P")
             fig_puissance_x.add_vline(x=t_s_x, line_dash="dash", line_color="purple", annotation_text="Onde S")
             
 
@@ -467,64 +273,166 @@ if signal_choice == "Nord-Sud":
         st.plotly_chart(fig_puissance_x, use_container_width=True)
 
     else:
-        fig_puissance_x.add_vline(x=t_p_x, line_dash="dash", line_color="green", annotation_text="Onde P")
-        fig_puissance_x.add_vline(x=t_s_x, line_dash="dash", line_color="purple", annotation_text="Onde S")
+        # Traces de l’énergie et des pics
+        fig_puissance_x.add_trace(go.Scatter(x=time, y=energie_s, mode='lines', name='Énergie onde S', line=dict(color='blue')))
         st.plotly_chart(fig_puissance_x, use_container_width=True)
 
     
 
 if signal_choice == "Est-Ouest":
-    fig_puissance_y = go.Figure()
     # Filtrage dans les bandes typiques des ondes P et S
-    signal_p_y = bandpass_filter(signal_y, 8, 12, fs)   # Onde P ~10 Hz
-    signal_s_y = bandpass_filter(signal_y, 0.5, 2, fs)  # Onde S ~1 Hz
-    energie_p_y = compute_energy_envelope(signal_p_y, fs)
-    energie_s_y = compute_energy_envelope(signal_s_y, fs)
-    # Détection de pics
-    peaks_p_y, _ = sp.signal.find_peaks(energie_p_y, height=0.1, distance=int(0.3 * fs))
-    peaks_s_y, _ = sp.signal.find_peaks(energie_s_y, height=0.1, distance=int(0.3 * fs))
-    # Traces de l’énergie et des pics
-    fig_puissance_y.add_trace(go.Scatter(x=time, y=energie_p_y, mode='lines', name='Énergie onde P', line=dict(color='green')))
-    fig_puissance_y.add_trace(go.Scatter(x=time, y=energie_s_y, mode='lines', name='Énergie onde S', line=dict(color='purple')))    
-    if len(peaks_p_y) > 0 and len(peaks_s_y) > 0:
-        t_p_y = time[peaks_p_y[0]]
-        t_s_y = time[peaks_s_y[0]]
+    fig_puissance_y = go.Figure()
+    signal_s = bandpass_filter(signal_y, f_min_s, f_max_s, fs)  # Onde S
 
-        st.success(f"🟢 Onde P détectée à t = {t_p_y:.2f} s (≈10 Hz)")
-        st.success(f"🟣 Onde S détectée à t = {t_s_y:.2f} s (≈1 Hz)")
+    energie_s = compute_energy_envelope(signal_s, fs)
 
-        fig_puissance_y.add_vline(x=t_p_y, line_dash="dash", line_color="green", annotation_text="Onde P")
-        fig_puissance_y.add_vline(x=t_s_y, line_dash="dash", line_color="purple", annotation_text="Onde S")
+    
+    #Temps d'arrivée des ondes P et S avant verification donne par l'utilisateur
+
+    t_s_y=st.slider(
+        "Temps d'arrivée de l'onde S (en secondes)",
+        min_value=float(time[0]),
+        max_value=float(time[-1]),
+        value=(float(time[0])),
+        step=0.1,
+        key='slider_ts'
+    )
+
+    if st.button("Verification des temps d'arrivée de l'onde S"):
+        signal_s = bandpass_filter(signal_y, 0.5, 2, fs)  # Onde S
+
+        energie_s = compute_energy_envelope(signal_s, fs)
+
+        # Détection de pics
+        peaks_s, _ = sp.signal.find_peaks(energie_s, height=0.05, distance=int(0.3 * fs))
+
+        # Traces de l’énergie et des pics
+        fig_puissance_y.add_trace(go.Scatter(x=time, y=energie_s, mode='lines', name='Énergie onde S', line=dict(color='red')))
+
+        if  len(peaks_s) > 0:
+            t_s_y = time[peaks_s[0]]
+
+
+            st.success(f"🟣 Onde S détectée à t = {t_s_y:.2f} s (≈1 Hz)")
+
+            fig_puissance_y.add_vline(x=t_s_y, line_dash="dash", line_color="purple", annotation_text="Onde S")
+
+
+        else:
+            st.warning("Impossible de détecter automatiquement les ondes P et S.")
+
+        st.plotly_chart(fig_puissance_y, use_container_width=True)
+
     else:
-        st.warning("Impossible de détecter automatiquement les ondes P et S.")
-    # Affichage final
-    st.plotly_chart(fig_puissance_y, use_container_width=True)
+        # Traces de l’énergie et des pics
+        fig_puissance_y.add_trace(go.Scatter(x=time, y=energie_s, mode='lines', name='Énergie onde S', line=dict(color='red')))
+        st.plotly_chart(fig_puissance_y, use_container_width=True)
+
 
 if signal_choice == "Vertical":
-    fig_puissance_z = go.Figure()
     # Filtrage dans les bandes typiques des ondes P et S
-    signal_p_z = bandpass_filter(signal_z, 8, 12, fs)   # Onde P ~10 Hz
-    signal_s_z = bandpass_filter(signal_z, 0.5, 2, fs)  # Onde S ~1 Hz
-    energie_p_z = compute_energy_envelope(signal_p_z, fs)
-    energie_s_z = compute_energy_envelope(signal_s_z, fs)
-    # Détection de pics
-    peaks_p_z, _ = sp.signal.find_peaks(energie_p_z, height=0.1, distance=int(0.3 * fs))
-    peaks_s_z, _ = sp.signal.find_peaks(energie_s_z, height=0.1, distance=int(0.3 * fs))
-    # Traces de l’énergie et des pics
-    fig_puissance_z.add_trace(go.Scatter(x=time, y=energie_p_z, mode='lines', name='Énergie onde P', line=dict(color='green')))
-    fig_puissance_z.add_trace(go.Scatter(x=time, y=energie_s_z, mode='lines', name='Énergie onde S', line=dict(color='purple')))
-    if len(peaks_p_z) > 0 and len(peaks_s_z) > 0:
-        t_p_z = time[peaks_p_z[0]]
-        t_s_z = time[peaks_s_z[0]]
+    fig_puissance_z = go.Figure()
+    signal_p = bandpass_filter(signal_z, f_min_p, f_max_p, fs)  # Onde S
 
-        st.success(f"🟢 Onde P détectée à t = {t_p_z:.2f} s (≈10 Hz)")
-        st.success(f"🟣 Onde S détectée à t = {t_s_z:.2f} s (≈1 Hz)")
+    energie_p = compute_energy_envelope(signal_p, fs)
 
-        fig_puissance_z.add_vline(x=t_p_z, line_dash="dash", line_color="green", annotation_text="Onde P")
-        fig_puissance_z.add_vline(x=t_s_z, line_dash="dash", line_color="purple", annotation_text="Onde S")
+    #Temps d'arrivée des ondes P et S avant verification donne par l'utilisateur
+
+    t_p_z=st.slider(
+        "Temps d'arrivée de l'onde P (en secondes)",
+        min_value=float(time[0]),
+        max_value=float(time[-1]),
+        value=(float(time[0])),
+        step=0.1,
+        key='slider_ts'
+    )
+
+    if st.button("Verification des temps d'arrivée de l'onde P"):
+        signal_p = bandpass_filter(signal_z, 8, 12, fs)  # Onde P
+
+        energie_p = compute_energy_envelope(signal_p, fs)
+
+        # Détection de pics
+        peaks_p, _ = sp.signal.find_peaks(energie_p, height=0.05, distance=int(0.3 * fs))
+
+        # Traces de l’énergie et des pics
+        fig_puissance_z.add_trace(go.Scatter(x=time, y=energie_p, mode='lines', name='Énergie onde P', line=dict(color='green')))
+
+        if  len(peaks_p) > 0:
+            t_p_x = time[peaks_p[0]]
+
+
+            st.success(f"🟢 Onde P détectée à t = {t_p_x:.2f} s (≈10 Hz)")
+
+            fig_puissance_z.add_vline(x=t_p_x, line_dash="dash", line_color="lime", annotation_text="Onde P")
+
+
+        else:
+            st.warning("Impossible de détecter automatiquement les ondes P et S.")
+
+        st.plotly_chart(fig_puissance_z, use_container_width=True)
+
     else:
-        st.warning("Impossible de détecter automatiquement les ondes P et S.")
-    # Affichage final
-    st.plotly_chart(fig_puissance_z, use_container_width=True)
+        # Traces de l’énergie et des pics
+        fig_puissance_z.add_trace(go.Scatter(x=time, y=energie_p, mode='lines', name='Énergie onde P', line=dict(color='green')))
+        st.plotly_chart(fig_puissance_z, use_container_width=True)
 
+
+st.write("""notez les temps d'arrivée des ondes P et S """)
+st.info(f"Temps d'arrivée de l'onde S prenons la moyenne des deux temps : (t_s_x + t_s_y)/2 s")
+t_p=st.number_input(
+    "Temps d'arrivée de l'onde P (en secondes)",
+    min_value=float(time[0]),
+    max_value=float(time[-1]),
+    value=(float(time[0])),
+    step=0.1,
+    key='input_tp'
+)
+t_s=st.number_input(
+    "Temps d'arrivée de l'onde S (en secondes)",
+    min_value=float(time[0]),
+    max_value=float(time[-1]),
+    value=(float(time[0])),
+    step=0.1,
+    key='input_ts'
+)
+
+
+
+
+
+if st.button("Calculer la distance à l'épicentre du séisme"):
+    st.header("4. Calcul de la distance à l'épicentre du séisme")
+    st.write(
+        """
+        En utilisant les temps d'arrivée des ondes P et S, nous pouvons estimer la distance à l'épicentre du séisme.
+        La vitesse des ondes P est d'environ 7.3 km/s et celle des ondes S est d'environ 4 km/s.
+        La distance à l'épicentre peut être estimée en utilisant la formule :
+        $D = \\frac{{Δt}}{{\\frac{{1}}{{V_s}} - \\frac{{1}}{{V_p}}}} = \\frac{{V_p × V_s}}{{V_p - V_s}} × Δt$
+        où $Δt = t_s - t_p$ est la différence de temps d'arrivée des ondes S et P.
+        """
+    )
+
+    st.write(f"Temps d'arrivée de l'onde P : {t_p:.2f} s")
+    st.write(f"Temps d'arrivée de l'onde S : {t_s:.2f} s")
+
+    if t_s > t_p and t_s > 0 and t_p > 0:
+        st.success("Les temps d'arrivée des ondes P et S sont valides.")
+    else:
+        st.error("Les temps d'arrivée des ondes P et S ne sont pas valides. Veuillez vérifier les valeurs saisies.")
+
+    if t_s > t_p and t_s > 0 and t_p > 0:
+
+        Vp = 7.3  # Vitesse des ondes P en km/s
+        Vs = 4.0  # Vitesse des ondes S en km/s
+        delta_t = t_s - t_p  # Différence de temps d'arrivée des ondes S et P
+        D = (Vp * Vs) / (Vp - Vs) * delta_t  # Distance à l'épicentre en km
+
+        st.write(f"La distance à l'épicentre du séisme est d'environ {D:.2f} km.")
+        st.write(
+            """
+            Cette distance est une estimation basée sur les temps d'arrivée des ondes P et S et les vitesses typiques de ces ondes.
+            Elle peut varier en fonction des conditions géologiques et de la profondeur du séisme.
+            """
+        )
 

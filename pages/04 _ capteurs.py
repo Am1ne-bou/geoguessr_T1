@@ -50,9 +50,10 @@ L'**échantillonnage** consiste à prélever régulièrement des valeurs d'un si
 - Si fs est trop basse, on perd des informations et le signal est déformé (aliasing).
 
 **Exemple** : Pour la voix humaine, on utilise souvent 8 000 Hz ; pour la musique, 44 100 Hz (CD audio).
-""")
 
-st.image("https://cdn.pixabay.com/photo/2017/01/10/19/05/sound-1964107_1280.png", caption="Principe de l'échantillonnage d'un signal sonore (en bleu : signal continu, en rouge : échantillons)")
+**Le théorème de Shannon** (ou Shannon-Nyquist) dit que pour bien enregistrer un signal, il faut que la fréquence d'échantillonnage soit **au moins deux fois plus grande** que la fréquence la plus élevée présente dans le signal.  
+Sinon, certaines fréquences ne seront pas bien enregistrées et le signal sera déformé.
+""")
 
 st.markdown("**Quiz :**")
 q2 = st.radio(
@@ -155,7 +156,6 @@ seuil = 0.05 * np.max(amplitude)
 freq_presentes = xf[amplitude > seuil]
 if len(freq_presentes) > 0:
     freq_plus_haute = np.max(freq_presentes)
-    st.info(f"La fréquence la plus haute réellement présente dans le signal échantillonné est : **{freq_plus_haute:.1f} Hz**")
 else:
     st.info("Aucune fréquence significative détectée dans le signal échantillonné.")
 

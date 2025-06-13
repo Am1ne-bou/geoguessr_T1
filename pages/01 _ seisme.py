@@ -140,9 +140,12 @@ st.write("""
 Les stations sismiques transforment les vibrations du sol en **signaux** (courbes d'amplitude en fonction du temps).
 Ces signaux sont appelés **sismogrammes**.
 
-Un sismogramme est l'enregistrement des mouvements du sol lors d'un séisme, réalisé par un capteur appelé **sismomètre**.
-On peut y repérer l'arrivée des différentes ondes (P, S, de surface).
+Un sismogramme est l'enregistrement des mouvements du sol lors d'un séisme, réalisé par un capteur appelé **sismographe**.
+On peut y repérer l'arrivée des différentes ondes (P, S, de surface).""")
 
+st.image("https://www.seis-insight.eu/images/Public-Images/S1-Sismo/fonctionnement_sismometre_big.jpg")
+
+st.write("""
 Ci-dessous, un exemple de sismogramme enregistré sur trois axes (vertical, nord-sud, est-ouest) :
 """)
 

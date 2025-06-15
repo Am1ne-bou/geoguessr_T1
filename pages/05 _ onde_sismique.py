@@ -282,6 +282,7 @@ if signal_choice == "Nord-Sud":
         step=0.1,
         key='slider_ts'
     )
+    fig_puissance_x.add_vline(x=t_s_x, line_dash="dash", line_color="cyan", annotation_text="Onde S")
 
     if st.button("Verification des temps d'arrivée de l'onde S"):
         signal_s = bandpass_filter(signal_x, 0.5, 2, fs)  # Onde S
@@ -333,7 +334,7 @@ if signal_choice == "Est-Ouest":
         step=0.1,
         key='slider_ts'
     )
-
+    fig_puissance_y.add_vline(x=t_s_y, line_dash="dash", line_color="orange", annotation_text="Onde S")
     if st.button("Verification des temps d'arrivée de l'onde S"):
         signal_s = bandpass_filter(signal_y, 0.5, 2, fs)  # Onde S
 
@@ -382,7 +383,7 @@ if signal_choice == "Vertical":
         step=0.1,
         key='slider_ts'
     )
-
+    fig_puissance_z.add_vline(x=t_p_z, line_dash="dash", line_color="yellow", annotation_text="Onde P")
     if st.button("Verification des temps d'arrivée de l'onde P"):
         signal_p = bandpass_filter(signal_z, 8, 12, fs)  # Onde P
 

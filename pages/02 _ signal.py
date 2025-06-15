@@ -311,7 +311,7 @@ st.markdown("### 🌊 Types d'ondes sismiques")
 st.table({
     "Type d'onde": ["P (Primaire)", "S (Secondaire)", "Ondes de surface (Love & Rayleigh)"],
     "Nature": ["Longitudinale", "Transversale", "Mixte (transversale + déplacement vertical/horizontal)"],
-    "Vitesse (km/s)": ["7.3", "4", "2–4"],
+    "Vitesse (km/s)": ["7.3", "4", "1–4"],
     "Fréquences typiques": ["Environ 10 Hz", "Environ 1 Hz", "0.005 – 5 Hz"],
     "Amplitude relative": ["Faible", "Moyenne", "**Forte** "],
     "Effet sur les bâtiments": [

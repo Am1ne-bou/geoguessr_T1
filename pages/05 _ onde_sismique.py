@@ -32,48 +32,79 @@ st.write(
     Dans cette application, nous visualisons une onde sismique captee par une station japonaise.
     """
 )
-time= np.linspace(0, 120, 12000)  # Temps de 0 à 120 secondes avec 1200 points
+time= np.linspace(0, 120, 12000)  
 
-signal_x = np.zeros_like(time)
-signal_x += np.random.normal(0, 0.1, size=time.shape) + np.random.normal(0, 1, size=time.shape)*((time >= 15) & (time <= 120))
-signal_y = np.zeros_like(time)
-signal_y += np.random.normal(0, 0.1, size=time.shape) + np.random.normal(0, 1, size=time.shape)*((time >= 15) & (time <= 120)) 
-signal_z = np.zeros_like(time)
-signal_z += np.random.normal(0, 0.1, size=time.shape) + np.random.normal(0, 1, size=time.shape)*((time >= 15) & (time <= 120))
-#ajout p
-signal_p= sum(10*np.random.uniform(-0.5, 0.5) * np.cos(2 * np.pi * (10+np.random.normal(-1, 1) * time))*((time >=20 ) & (time <= 40)) for _ in range(1000))
-#ajout s
-signal_s= sum(20*np.random.uniform(-0.5, 0.5) * np.cos(2 * np.pi * (1+np.random.normal(-0.5, 1) * time))*((time >=60 ) & (time <= 80)) for _ in range(1000))
-#ajout surface
-signal_surface = sum(50*np.random.uniform(-0.5, 0.5) * np.cos(2 * np.pi * (1+np.random.normal(-0.1, 0.5) * time))*((time >=70 ) & (time <= 120)) for _ in range(1000))
+import numpy as np
 
+# Création du vecteur temps (exemple pour 2 minutes à 100 Hz)
+time = np.linspace(0, 120, 120*100)
 
-signal_x += sum(0.5*np.random.uniform(-0.5, 0.5) * np.cos(2 * np.pi * (10+np.random.normal(-1, 1) * time))*((time >=15 ) & (time <= 30)) for _ in range(1000))
-signal_x += sum(15*np.random.uniform(-0.5, 0.5) * np.cos(2 * np.pi * (1+np.random.normal(-0.5, 1) * time))*((time >=40 ) & (time <= 60)) for _ in range(1000))  
-signal_x += sum(22*np.random.uniform(-0.5, 0.5) * np.cos(2 * np.pi * (0.5+np.random.normal(-0.1, 0.5) * time))*((time >=60 ) & (time <= 100)) for _ in range(1000))
+def generate_wave(time, wave_type, start, end):
+    sig = np.zeros_like(time)
+    
+    # Création d'une fenêtre de Hanning pour l'enveloppe
+    window_length = int(len(time) * (end-start)/time[-1])
+    if window_length > 0:
+        hanning_win = sp.signal.windows.hann(window_length * 2)     
+        win_start = max(0, int(len(time)*start/time[-1]) - window_length//2)
+        win_end = min(len(time), int(len(time)*end/time[-1]) + window_length//2)
+        full_window = np.zeros_like(time)
+        full_window[win_start:win_end] = hanning_win[:win_end-win_start]
+    else:
+        full_window = np.ones_like(time)
 
-signal_y += sum(0.5*np.random.uniform(-0.5, 0.5) * np.cos(2 * np.pi * (10+np.random.normal(-1, 1) * time))*((time >=15 ) & (time <= 30)) for _ in range(1000))
-signal_y += sum(15*np.random.uniform(-0.5, 0.5) * np.cos(2 * np.pi * (1+np.random.normal(-0.5, 1) * time))*((time >=40 ) & (time <= 60)) for _ in range(1000))
-signal_y += sum(22*np.random.uniform(-0.5, 0.5) * np.cos(2 * np.pi * (0.5+np.random.normal(-0.1, 0.5) * time))*((time >=60 ) & (time <= 100)) for _ in range(1000))
+    if wave_type == 'P':
+        # Ondes P 
+        for i in range(1000):
+            freq = 10 + np.random.normal(0, 1) #10hz
+            amp = 10 * np.random.uniform(0.8, 1.2)
+            active = (time >= start) & (time <= end)
+            sig += amp * np.cos(2 * np.pi * freq * time) * full_window * np.exp(-0.01*(time-start)*active)
+    
+    elif wave_type == 'S':
+        # Ondes S
+        for i in range(1000):
+            freq = 1 + np.random.normal(0, 0.5) #1hz
+            amp = 20 * np.random.uniform(0.8, 1.2)
+            active = (time >= start) & (time <= end)
+            sig += amp * np.cos(2 * np.pi * freq * time) * full_window * np.exp(-0.01*(time-start)*active)
+    
+    elif wave_type == 'surface':
+        # Ondes de surface
+        for i in range(1000): 
+            freq = 2 + np.random.normal(0, 0.1)
+            amp = 50 * np.random.uniform(0.8, 1.2)
+            active = (time >= start) & (time <= end)
+            sig += amp * np.cos(2 * np.pi * freq * time) * full_window * np.exp(-0.01*(time-start)*active)
 
+    return sig
 
-signal_z += sum(10*np.random.uniform(-0.5, 0.5) * np.cos(2 * np.pi * (10+np.random.normal(-1, 1) * time))*((time >=15 ) & (time <= 30)) for _ in range(1000))
-signal_z += sum(2*np.random.uniform(-0.5, 0.5) * np.cos(2 * np.pi * (1+np.random.normal(-0.5, 1) * time))*((time >=40 ) & (time <= 60)) for _ in range(1000))
-signal_z += sum(22*np.random.uniform(-0.5, 0.5) * np.cos(2 * np.pi * (4+np.random.normal(-0.1, 0.5) * time))*((time >=60 ) & (time <= 100)) for _ in range(1000))
+# Génération des composantes
+def generate_seismic_signal(time,start_p, end_p, start_s, end_s, start_surface, end_surface):
+    # Bruit de fond
+    noise = np.random.normal(0, 0.1, len(time))
+    
+    # Génération des ondes
+    p_wave = generate_wave(time, 'P', start_p, end_p)  
+    s_wave = generate_wave(time, 'S', start_s, end_s)
+    surface_wave = generate_wave(time, 'surface', start_surface, end_surface)
+
+    # Composition des signaux par composante
+    signal_x = noise + 0.1*p_wave + 0.7*s_wave + 0.4*surface_wave
+    signal_y = noise + 0.1*p_wave + 0.9*s_wave + 0.5*surface_wave
+    signal_z = noise + 1.0*p_wave + 0.1*s_wave + 0.4*surface_wave
+    
+    return signal_x, signal_y, signal_z
+
+# Génération des signaux
+@st.cache_data
+def get_signal():
+    time = np.linspace(0, 120, 120*100)
+    signal_x, signal_y, signal_z = generate_seismic_signal(time, 15, 30, 35, 50, 60, 100)
+    return signal_x, signal_y, signal_z
+signal_x, signal_y, signal_z = get_signal()
 
 # Création du graphique
-fig = go.Figure()
-fig.add_trace(go.Scatter(x=time, y=signal_x, mode='lines', name='Signal nord_sud (X)',line=dict(color='blue')))
-fig.add_trace(go.Scatter(x=time, y=signal_y, mode='lines', name='Signal est_ouest (Y)',line=dict(color='red')))
-fig.add_trace(go.Scatter(x=time, y=signal_z, mode='lines', name='Signal vertical (Z)',line=dict(color='lime')))
-
-fig.update_layout(
-    title="Onde sismique captée par une station japonaise",
-    xaxis_title="Temps (s)",
-    yaxis_title="Amplitude",
-    template="plotly_white"
-)       
-st.plotly_chart(fig, use_container_width=True)
 
 fig1 = go.Figure()
 fig1.add_trace(go.Scatter(x=time, y=signal_x+signal_y+signal_z, mode='lines', name='Signal combiné',line=dict(color='purple')))
@@ -86,49 +117,54 @@ fig1.update_layout(
 st.plotly_chart(fig1, use_container_width=True)
 
 st.subheader("""Comparaison le temps de depart des signaux X, Y et Z""")
-st.write("""Choisissons une intervalle de temps pour visualiser les signaux X, Y et Z""")
-t0, t1 = st.slider(
-    "Intervalle de temps pour visualiser les signaux (en secondes)",
-    min_value=0.0,
-    max_value=120.0,
-    value=(0.0, 120.0),
-    step=0.1,
-    key='slider_time'
+
+# Création de la figure avec subplots liés
+fig_combined = make_subplots(
+    rows=3, cols=1,
+    subplot_titles=("Composante Nord-Sud (X)", "Composante Est-Ouest (Y)", "Composante Verticale (Z)"),
+    vertical_spacing=0.1,
+    shared_xaxes=True  # Ceci synchronise le zoom horizontal
 )
-# Filtrage des signaux dans l'intervalle de temps choisi
-mask = (time >= t0) & (time <= t1)
 
-st.subheader("Signal nord_sud (X)")
-fig_x = go.Figure()
-fig_x.add_trace(go.Scatter(x=time[mask], y=signal_x[mask], mode='lines', name='Signal nord_sud (X)',line=dict(color='blue')))  
-fig_x.update_layout(
-        title="Signal nord_sud (X)",
-        xaxis_title="Temps (s)",
-        yaxis_title="Amplitude",
-        template="plotly_white"
-    )
-st.plotly_chart(fig_x, use_container_width=True)
-st.subheader("Signal est_ouest (Y)")
-fig_y = go.Figure()
-fig_y.add_trace(go.Scatter(x=time[mask], y=signal_y[mask], mode='lines', name='Signal est_ouest (Y)',line=dict(color='red')))
-fig_y.update_layout(
-        title="Signal est_ouest (Y)",
-        xaxis_title="Temps (s)",
-        yaxis_title="Amplitude",
-        template="plotly_white"
-    )
-st.plotly_chart(fig_y, use_container_width=True)
-st.subheader("Signal vertical (Z)")
-fig_z = go.Figure()
-fig_z.add_trace(go.Scatter(x=time[mask], y=signal_z[mask], mode='lines', name='Signal vertical (Z)',line=dict(color='lime')))
-fig_z.update_layout(
-        title="Signal vertical (Z)",
-        xaxis_title="Temps (s)",
-        yaxis_title="Amplitude",
-        template="plotly_white"
-    )
-st.plotly_chart(fig_z, use_container_width=True)
+# Ajout des traces
+fig_combined.add_trace(
+    go.Scatter(x=time, y=signal_x, mode='lines', name='X', line=dict(color='blue')),
+    row=1, col=1
+)
 
+fig_combined.add_trace(
+    go.Scatter(x=time, y=signal_y, mode='lines', name='Y', line=dict(color='red')),
+    row=2, col=1
+)
+
+fig_combined.add_trace(
+    go.Scatter(x=time, y=signal_z, mode='lines', name='Z', line=dict(color='lime')),
+    row=3, col=1
+)
+
+# Configuration du layout
+fig_combined.update_layout(
+    height=900,
+    showlegend=False,
+    template="plotly_white",
+    xaxis=dict(matches='x2'),
+    xaxis2=dict(matches='x3')
+)
+
+# Configuration des axes
+fig_combined.update_xaxes(title_text="Temps (s)", row=3, col=1)
+fig_combined.update_yaxes(title_text="Amplitude X", row=1, col=1)
+fig_combined.update_yaxes(title_text="Amplitude Y", row=2, col=1)
+fig_combined.update_yaxes(title_text="Amplitude Z", row=3, col=1)
+
+fig_combined.update_layout(
+    title="Comparaison des signaux sismiques (X, Y, Z)",
+    xaxis_title="Temps (s)",
+    yaxis_title="Amplitude",
+    template="plotly_white"
+)
+
+st.plotly_chart(fig_combined, use_container_width=True)
 
 st.write(
     """
@@ -406,7 +442,7 @@ if st.button("Calculer la distance à l'épicentre du séisme"):
     st.write(
         """
         En utilisant les temps d'arrivée des ondes P et S, nous pouvons estimer la distance à l'épicentre du séisme.
-        La vitesse des ondes P est d'environ 7.3 km/s et celle des ondes S est d'environ 4 km/s.
+        La vitesse des ondes P est d'environ 7.3 km/s et celle des ondes S est d'environ 3 km/s.
         La distance à l'épicentre peut être estimée en utilisant la formule :
         $D = \\frac{{Δt}}{{\\frac{{1}}{{V_s}} - \\frac{{1}}{{V_p}}}} = \\frac{{V_p × V_s}}{{V_p - V_s}} × Δt$
         où $Δt = t_s - t_p$ est la différence de temps d'arrivée des ondes S et P.
@@ -424,7 +460,7 @@ if st.button("Calculer la distance à l'épicentre du séisme"):
     if t_s > t_p and t_s > 0 and t_p > 0:
 
         Vp = 7.3  # Vitesse des ondes P en km/s
-        Vs = 4.0  # Vitesse des ondes S en km/s
+        Vs = 3.0  # Vitesse des ondes S en km/s
         delta_t = t_s - t_p  # Différence de temps d'arrivée des ondes S et P
         D = (Vp * Vs) / (Vp - Vs) * delta_t  # Distance à l'épicentre en km
 

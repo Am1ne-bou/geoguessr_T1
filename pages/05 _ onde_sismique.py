@@ -465,7 +465,7 @@ if st.button("Calculer la distance à l'épicentre du séisme"):
         delta_t = t_s - t_p  # Différence de temps d'arrivée des ondes S et P
         D = (Vp * Vs) / (Vp - Vs) * delta_t  # Distance à l'épicentre en km
 
-        st.write(f"La distance à l'épicentre du séisme est d'environ {D:.2f} km.")
+        st.markdown(f"La distance à l'épicentre du séisme est d'environ {D:.2f} km.")
         st.write(
             """
             Cette distance est une estimation basée sur les temps d'arrivée des ondes P et S et les vitesses typiques de ces ondes.

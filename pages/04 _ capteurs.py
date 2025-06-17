@@ -298,7 +298,6 @@ with st.expander("Question 1"):
     if st.checkbox("Afficher la réponse (Q1)", key="show_qf1"):
         if q == "la chaleur":
             st.success("Bonne réponse !")
-            score += 1
         elif q:
             st.warning("Ce n'est pas la bonne réponse.")
 
@@ -313,7 +312,6 @@ with st.expander("Question 2"):
     if st.checkbox("Afficher la réponse (Q2)", key="show_qf2"):
         if q == "Prendre des mesures à intervalles réguliers":
             st.success("Bonne réponse !")
-            score += 1
         elif q:
             st.warning("Ce n'est pas la bonne réponse.")
 
@@ -328,7 +326,6 @@ with st.expander("Question 3"):
     if st.checkbox("Afficher la réponse (Q3)", key="show_qf3"):
         if q == "De l'aliasing":
             st.success("Bonne réponse !")
-            score += 1
         elif q:
             st.warning("Ce n'est pas la bonne réponse.")
 
@@ -341,7 +338,6 @@ with st.expander("Question 4"):
     if st.checkbox("Afficher la réponse (Q4)", key="show_qf4"):
         if q == "200 Hz":
             st.success("Bonne réponse !")
-            score += 1
         elif q:
             st.warning("Ce n'est pas la bonne réponse.")
 

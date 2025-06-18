@@ -42,11 +42,12 @@ ordre = st.multiselect(
     "Classe ces ondes de la première à la dernière à arriver lors d'un séisme :",
     ["Ondes S", "Ondes de surface", "Ondes P"]
 )
-if ordre:
-    if ordre == ["Ondes P", "Ondes S", "Ondes de surface"]:
-        st.success("Bravo ! C'est le bon ordre d'arrivée.")
-    else:
-        st.warning("Essaie encore. Rappelle-toi : P (premières), S (secondes), puis les ondes de surface.")
+if st.checkbox("Vérifier l'ordre des ondes", value=False):
+    if ordre:
+        if ordre == ["Ondes P", "Ondes S", "Ondes de surface"]:
+            st.success("Bravo ! C'est le bon ordre d'arrivée.")
+        else:
+            st.warning("Essaie encore. Rappelle-toi : P (premières), S (secondes), puis les ondes de surface.")
 
 st.markdown("**Question : Pourquoi les ondes S ne traversent-elles pas le noyau externe de la Terre ?**")
 if st.checkbox("Afficher la réponse (ondes S)", value=False):
@@ -80,13 +81,12 @@ options = {
 reponses = {}
 for mot in options:
     reponses[mot] = st.selectbox(f"{mot} :", list(options.values()), key=mot)
-if st.button("Vérifier mes réponses"):
-    score = sum(reponses[mot] == options[mot] for mot in options)
-    if st.checkbox("Afficher la correction (définitions)", value=False):
-        if score == len(options):
-            st.success("Bravo, toutes les définitions sont correctes !")
-        else:
-            st.warning(f"{score}/{len(options)} bonnes réponses. Essaie encore !")
+score = sum(reponses[mot] == options[mot] for mot in options)
+if st.checkbox("Afficher la correction (définitions)", value=False):
+    if score == len(options):
+        st.success("Bravo, toutes les définitions sont correctes !")
+    else:
+        st.warning(f"{score}/{len(options)} bonnes réponses. Essaie encore !")
 
 st.markdown("**Quiz :**")
 q_dist = st.radio(
@@ -120,8 +120,8 @@ q1 = st.radio("Un séisme de magnitude 7 est 10 fois plus puissant qu'un séisme
 q2 = st.radio("L'intensité d'un séisme dépend de la distance à l'épicentre.", ["Vrai", "Faux"], key="q2")
 q3 = st.radio("Un séisme de magnitude 5 peut être ressenti à des centaines de kilomètres.", ["Vrai", "Faux"], key="q3")
 
-if st.button("Valider mes réponses (activité 3)"):
-    if st.checkbox("Afficher la correction (vrai/faux)", value=False):
+
+if st.checkbox("Afficher la correction (vrai/faux)", value=False):
         if q1 == "Faux":
             st.success("Bonne réponse pour la question 1 ! Il est environ 32 fois plus puissant.")
         else:
@@ -180,8 +180,8 @@ quiz = st.multiselect(
         "Prévoir la météo"
     ]
 )
-if st.button("Vérifier le quiz"):
-    if st.checkbox("Afficher la correction (signaux sismiques)", value=False):
+
+if st.checkbox("Afficher la correction (signaux sismiques)", value=False):
         bonnes = {"Détecter un séisme", "Trouver l'heure et le lieu du séisme", "Mesurer la puissance du séisme"}
         if set(quiz) == bonnes:
             st.success("Parfait ! Tu es prêt(e) pour la suite.")

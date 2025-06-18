@@ -24,7 +24,7 @@ with col1:
 with col2:
     f = st.slider("Fréquence (f)", min_value=1, max_value=100, value=1, step=1)
 with col3:
-    phi = st.slider("Phase (φ en radians)", min_value=0.0, max_value=float(2*np.pi), value=0.0, step=0.1, format="%.2f")
+    phi = st.slider("Phase (φ en radians)", min_value=0.0, max_value=float(2*np.pi), value=0.0, step=0.01, format="%.2f")
 
 t = np.linspace(0, 3, 3000)
 y = A * np.cos(2 * np.pi * f * t + phi)
@@ -142,8 +142,8 @@ st.header("Exemple avec un cosinus")
 
 
 # Paramètres
-f_max = 11000  # Fréquence maximale
-A = st.slider("Amplitude (A)", 0.1, 2.0, 1.0)
+f_max = 20000  # Fréquence maximale
+A = st.slider("Amplitude (A)", 0.0, 10.0, 1.0)
 f = st.slider("Fréquence (f)",0, f_max, 1000, step=10)  # Fréquence du signal
 
 
@@ -151,35 +151,25 @@ f = st.slider("Fréquence (f)",0, f_max, 1000, step=10)  # Fréquence du signal
 
 time = np.linspace(0, 3, 132000)  # Temps de 0 à 3 secondes
 
-carrier = A * np.cos(2*np.pi*f*time)
+c1 = A * np.cos(2*np.pi*f*time)
 
-# Initialiser les états dans la session si besoin
-if "add_500hz" not in st.session_state:
-    st.session_state["add_500hz"] = False
-if "add_300hz" not in st.session_state:
-    st.session_state["add_300hz"] = False
-if "add_6000hz" not in st.session_state:
-    st.session_state["add_6000hz"] = False
-if "add_10000hz" not in st.session_state:
-    st.session_state["add_10000hz"] = False
-
-col1, col2, col3, col4 = st.columns(4)
+formule = f"x(t) = {A} * cos(2π * {f} * t)"
+col1, col2, col3, col4, col5,col6 = st.columns(6)
 
 with col1:
-    if st.button("Ajouter un signal à 500 Hz"):
-        st.session_state["add_500hz"] = not st.session_state["add_500hz"]
-
+    comp_2=st.checkbox("Ajouter la composante 2",value=False)
 with col2:
-    if st.button("Ajouter un signal à 6000 Hz"):
-        st.session_state["add_6000hz"] = not st.session_state["add_6000hz"]
-
+    comp_3=st.checkbox("Ajouter la composante 3",value=False)
 with col3:
-    if st.button("Ajouter un signal à 10000 Hz"):
-        st.session_state["add_10000hz"] = not st.session_state["add_10000hz"]
-
+    comp_4=st.checkbox("Ajouter la composante 4",value=False)
 with col4:
-    if st.button("Ajouter un signal à 300 Hz"):
-        st.session_state["add_300hz"] = not st.session_state["add_300hz"]
+    comp_5=st.checkbox("Ajouter la composante 5",value=False)
+with col5:
+    comp_6=st.checkbox("Ajouter la composante 6",value=False)
+with col6:
+    comp_7=st.checkbox("Ajouter la composante 7",value=False)
+
+ 
 
 if "add_noise" not in st.session_state:
     st.session_state["add_noise"] = False
@@ -187,53 +177,88 @@ if "add_noise" not in st.session_state:
 if st.button("Ajouter du bruit blanc"):
     st.session_state["add_noise"] = not st.session_state["add_noise"]
 
-#Formule du signal avec les signaux additionnels et valeurs 
-st.subheader("Formule du signal")
-formule = f"x(t) = {A} * cos(2π * {f} * t)"
 
-# Génération des signaux selon l'état
-if st.session_state["add_6000hz"]:
-    A1 = st.slider("Amplitude du signal à 6000 Hz", 0.1, 2.0, 0.5, step=0.1)
-    c1 = A1 * np.cos(2 * np.pi * 6000 * time)
-    formule += f" + {A1} * cos(2π * 6000 * t)"
-else:
-    c1 = np.zeros_like(time)
 
-if st.session_state["add_300hz"]:
-    A2 = st.slider("Amplitude du signal à 300 Hz", 0.1, 2.0, 1.0, step=0.1)
-    c2 = A2 * np.cos(2 * np.pi * 300 * time)
-    formule += f" + {A2} * cos(2π * 300 * t)"
+if comp_2:
+    col1, col2 = st.columns(2)
+    with col1:
+        A2 = st.number_input("Amplitude 2", 0.0, 10.0, 1.0)
+    with col2:
+        f2 = st.number_input("Fréquence 2 (Hz)", 0, f_max, 2000)
+    c2 = A2 * np.cos(2 * np.pi * f2 * time)
+    formule += f" + {A2} * cos(2π * {f2} * t)"
 else:
     c2 = np.zeros_like(time)
 
-if st.session_state["add_10000hz"]:
-    A3 = st.slider("Amplitude du signal à 10000 Hz", 0.1, 2.0, 1.5, step=0.1)
-    c3 = A3 * np.cos(2 * np.pi * 10000 * time)
-    formule += f" + {A3} * cos(2π * 10000 * t)"
+if comp_3:
+    col1, col2 = st.columns(2)
+    with col1:
+        A3 = st.number_input("Amplitude 3", 0.0, 10.0, 1.0)
+    with col2:
+        f3 = st.number_input("Fréquence 3 (Hz)", 0, f_max, 4000)
+    c3 = A3 * np.cos(2 * np.pi * f3 * time)
+    formule += f" + {A3} * cos(2π * {f3} * t)"
 else:
-    c3 = np.zeros_like(time)
+    c3= np.zeros_like(time)
 
-if st.session_state["add_500hz"]:
-    A4 = st.slider("Amplitude du signal à 500 Hz", 0.1, 2.0, 1.0, step=0.1)
-    c4 = A4 * np.cos(2 * np.pi * 500 * time)
-    formule += f" + {A4} * cos(2π * 500 * t)"
+if comp_4:
+    col1, col2 = st.columns(2)
+    with col1:
+        A4 = st.number_input("Amplitude 4", 0.0, 10.0, 1.0)
+    with col2:
+        f4 = st.number_input("Fréquence 4 (Hz)", 0, f_max, 8000)
+    c4 = A4 * np.cos(2 * np.pi * f4 * time)
+    formule += f" + {A4} * cos(2π * {f4} * t)"
 else:
     c4 = np.zeros_like(time)
 
-#Bouton bruit
+if comp_5:
+    col1, col2 = st.columns(2)
+    with col1:
+        A5 = st.number_input("Amplitude 5", 0.0, 10.0, 1.0)
+    with col2:
+        f5 = st.number_input("Fréquence 2 (Hz)", 0, f_max, 10000)
+    c5 = A5 * np.cos(2 * np.pi * f5 * time)
+    formule += f" + {A5} * cos(2π * {f5} * t)"
+else:
+    c5 = np.zeros_like(time)
+
+if comp_6:
+    col1, col2 = st.columns(2)
+    with col1:
+        A6 = st.number_input("Amplitude 6", 0.0, 10.0, 1.0)
+    with col2:
+        f6 = st.number_input("Fréquence 6 (Hz)", 0, f_max, 10000)
+    c6 = A6 * np.cos(2 * np.pi * f6 * time)
+    formule += f" + {A6} * cos(2π * {f6} * t)"
+else:
+    c6 = np.zeros_like(time)
+
+if comp_7:
+    col1, col2 = st.columns(2)
+    with col1:
+        A7 = st.number_input("Amplitude 7", 0.0, 10.0, 1.0)
+    with col2:
+        f7 = st.number_input("Fréquence 7 (Hz)", 0, f_max, 10000)
+    c7 = A7 * np.cos(2 * np.pi * f7 * time)
+    formule += f" + {A7} * cos(2π * {f7} * t)"
+else:
+    c7 = np.zeros_like(time)
+
 
 
 if st.session_state["add_noise"]:
-    A_noise = st.slider("Amplitude du bruit", 0.0, 1.0, 0.01, step=0.01)
+    A_noise = st.slider("Amplitude du bruit", 0.0, 2.0, 0.01, step=0.01)
     noise =  np.random.normal(0, A_noise, size=time.shape)  # Bruit blanc
     formule +=" + bruit"
 else:
     noise = np.zeros_like(time)
 
-x = carrier + c1 + c2 + c3 + c4 + noise
+x = c1 + c2 + c3 + c4 + c5+c6+c7 + noise
 
 #formule de signal
-st.write(formule)
+st.subheader("Formule du signal généré")
+st.latex(formule)
 
 
 # Bouton pour activer/désactiver le son

@@ -119,7 +119,7 @@ if audio is not None:
             f_demo, t_spec_demo, Sxx_demo = spectrogram(y_demo, fs=fs_demo, nperseg=512, noverlap=256)
             fig_demo = go.Figure(
                 data=go.Heatmap(
-                    z=10 * np.log10(Sxx_demo + 1e-10),
+                    z=Sxx_demo,
                     x=t_spec_demo,
                     y=f_demo,
                     colorscale="Viridis",
